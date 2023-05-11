@@ -50,7 +50,7 @@ void FDVtxPlot_z_down_fixed()
   TChain *t = new TChain("MyEnergyAnalysis/MyTree");
   // Ntuple path on FNAL dunegpvm machine
   // For FNAL machine:
-  t->Add("/dune/app/users/flynnguo/FDEff/srcs/myntuples/myntuples/MyEnergyAnalysis/myntuple.root");
+  t->Add("/pnfs/dune/persistent/users/flynnguo/myFDntuples/myntuple_68092381_99all.root");
 
   // Define variables for FD event
   int FD_Run; // # of the run being processed
@@ -202,7 +202,7 @@ void FDVtxPlot_z_down_fixed()
       Int_t Eff_FD_HV_dnm = 0;
 
       Double_t setFD_FV_min[] = { FDActiveVol_min[0]+30+i_Dtransverse, FDActiveVol_min[1]+30+i_Dtransverse, FDActiveVol_min[2]+30+i_Dtransverse_z};
-      Double_t setFD_FV_max[] = { FDActiveVol_max[0]-30-i_Dtransverse, FDActiveVol_max[1]-30-i_Dtransverse, 1244.};
+      Double_t setFD_FV_max[] = { FDActiveVol_max[0]-30-i_Dtransverse, FDActiveVol_max[1]-30-i_Dtransverse, 960.};
 
       //------------------------------------------------------------------------------
       // Loop over FD events
@@ -320,7 +320,7 @@ void FDVtxPlot_z_up_fixed()
   TChain *t = new TChain("MyEnergyAnalysis/MyTree");
   // Ntuple path on FNAL dunegpvm machine
   // For FNAL machine:
-  t->Add("/dune/app/users/flynnguo/FDEff/srcs/myntuples/myntuples/MyEnergyAnalysis/myntuple.root");
+  t->Add("/pnfs/dune/persistent/users/flynnguo/myFDntuples/myntuple_68092381_99all.root");
 
   // Define variables for FD event
   int FD_Run; // # of the run being processed
@@ -580,7 +580,7 @@ void FDVtxPlot_z_fixed_both()
   TChain *t = new TChain("MyEnergyAnalysis/MyTree");
   // Ntuple path on FNAL dunegpvm machine
   // For FNAL machine:
-  t->Add("/dune/app/users/flynnguo/FDEff/srcs/myntuples/myntuples/MyEnergyAnalysis/myntuple.root");
+  t->Add("/pnfs/dune/persistent/users/flynnguo/myFDntuples/myntuple_68092381_99all.root");
 
   // Define variables for FD event
   int FD_Run; // # of the run being processed
