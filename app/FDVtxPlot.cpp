@@ -49,7 +49,7 @@ void FDVtxPlot()
   TChain *t = new TChain("MyEnergyAnalysis/MyTree");
   // Ntuple path on FNAL dunegpvm machine
   // For FNAL machine:
-  t->Add("/dune/app/users/flynnguo/FDEff/srcs/myntuples/myntuples/MyEnergyAnalysis/myntuple.root");
+  t->Add("/pnfs/dune/persistent/users/flynnguo/myFDntuples/myntuple_68092381_99all.root");
 
   // Define variables for FD event
   int FD_Run; // # of the run being processed
