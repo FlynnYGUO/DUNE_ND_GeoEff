@@ -85,6 +85,7 @@ int main(int argc, char** argv)
   int FD_Sim_nNumu; // # of Sim muon neutrinos (numu and numubar)
   double FD_Gen_numu_E; // Energy of generator level neutrino [MeV]
   double FD_E_vis_true; // True visible energy [MeV],  E_vis, true = LepE + eP + ePip + ePim + ePi0 + eOther + nipi0 * pi0_mass,  where pi0_mass is a constant that's 135 MeV
+  double FD_LepNuAngle;                // Angle b/w nu and lepton [radians]
   int FD_Sim_nMu; // # of Sim muons (mu+/mu-)
   int FD_CCNC_truth; // 0 =CC 1 =NC
   int FD_neuPDG; // Generator level neutrino PDG
@@ -115,6 +116,7 @@ int main(int argc, char** argv)
   t->SetBranchAddress("Event",                    &FD_Event);
   t->SetBranchAddress("Sim_nNumu",                &FD_Sim_nNumu);
   t->SetBranchAddress("Gen_numu_E",               &FD_Gen_numu_E);
+  t->SetBranchAddress("LepNuAngle",               &FD_LepNuAngle);
   t->SetBranchAddress("E_vis_true",               &FD_E_vis_true);
   t->SetBranchAddress("Sim_nMu",                  &FD_Sim_nMu);
   t->SetBranchAddress("CCNC_truth",               &FD_CCNC_truth);
@@ -312,6 +314,7 @@ int main(int argc, char** argv)
   // Lepton info: expressed in ND coordinate sys, do not confuse with branches read above in FD coordinate sys
   double ND_Gen_numu_E; // Energy of generator level neutrino [GeV]
   double ND_E_vis_true; // True visible energy of neutrino [GeV]
+  double ND_LepNuAngle; // Angle b/w nu and lepton [radians]
   // Muon info
   // array: (x,y,z)<->dim=(0,1,2)
   double ND_RandomVtx_Sim_mu_start_v[3]; // Position of the muon trajectory at start point [cm]
@@ -429,14 +432,19 @@ int main(int argc, char** argv)
   //------------------------------------------------------------------------------
   //
   // Store variables into a tree
+
+  // Store ND_LAr_dtctr_pos_vec and ND_vtx_vx_vec
+  vector<Int_t> iwritten_vec; // vector of iwritten
   TTree *effPosND = new TTree("effPosND", "ND offaxis pos vector");
   effPosND->Branch("ND_LAr_dtctr_pos_vec",                       &ND_LAr_dtctr_pos_vec);                             // vector<double>: entries = written evts * ND_off_axis_pos_steps
   effPosND->Branch("ND_vtx_vx_vec",                              &ND_vtx_vx_vec);
   effPosND->Branch("ND_OffAxis_pos_vec",                         &ND_OffAxis_pos_vec);
+  effPosND->Branch("iwritten_vec",                               &iwritten_vec);
 
   TTree *effTreeFD = new TTree("effTreeND", "FD eff Tree");
   effTreeFD->Branch("ND_Gen_numu_E",                             &ND_Gen_numu_E,            "ND_Gen_numu_E/D");
   effTreeFD->Branch("ND_E_vis_true",                             &ND_E_vis_true,            "ND_E_vis_true/D");
+  effTreeFD->Branch("ND_LepNuAngle",                             &ND_LepNuAngle,            "ND_LepNuAngle/D");
   effTreeFD->Branch("ND_Sim_n_hadronic_Edep_b",                  &FD_Sim_n_hadronic_Edep_b,            "FD_Sim_n_hadronic_Edep_b/I");
   // 1. FD to ND: after earth curvature rotation
   effTreeFD->Branch("ND_RandomVtx_Sim_mu_start_v",               ND_RandomVtx_Sim_mu_start_v,       "ND_RandomVtx_Sim_mu_start_v[3]/D");   // entries = written evts*3
@@ -500,16 +508,8 @@ int main(int argc, char** argv)
   effValues->Branch("ND_LAr_vtx_pos",                   &ND_LAr_vtx_pos,           "ND_LAr_vtx_pos/D");
   effValues->Branch("ND_GeoEff",                    &ND_GeoEff,            "ND_GeoEff/D");
   effValues->Branch("ND_OffAxis_MeanEff",           &ND_OffAxis_MeanEff,   "ND_OffAxis_MeanEff/D");
-  // Store ND_LAr_dtctr_pos_vec and ND_vtx_vx_vec
 
-  vector<Int_t> iwritten_vec;
-  TTree *PosVec = new TTree("PosVec", "ND OffAxis pos vec and ND LAr pos vec");
-  if(plotVerbose)
-  {
-    PosVec->Branch("iwritten_vec",                             &iwritten_vec);
-    PosVec->Branch("ND_LAr_dtctr_pos_vec",                     &ND_LAr_dtctr_pos_vec);                             // vector<double>: entries = written evts * ND_off_axis_pos_steps
-    PosVec->Branch("ND_vtx_vx_vec",                            &ND_vtx_vx_vec);
-  }
+
 
   //
   //------------------------------------------------------------------------------
@@ -762,6 +762,7 @@ int main(int argc, char** argv)
     // Branches that are not affected by ND off axis position and vtx x (loops below)
     ND_Gen_numu_E = FD_Gen_numu_E;
     ND_E_vis_true = FD_E_vis_true;
+    ND_LepNuAngle = FD_LepNuAngle;
     ND_Sim_hadronic_Edep_b2 = FD_Sim_hadronic_Edep_b2;
 
 
@@ -1118,7 +1119,7 @@ int main(int argc, char** argv)
           // for (unsigned int ithrow = 0; ithrow < N_throws; ithrow++ )
           if(plotVerbose)
           {
-            for (unsigned int ithrow = 0; ithrow < 20; ithrow++ )
+            for (unsigned int ithrow = 0; ithrow < 35; ithrow++ )
             {
               CurrentThrowDepsX.emplace_back(eff->getCurrentThrowDepsX(ithrow));
               CurrentThrowDepsY.emplace_back(eff->getCurrentThrowDepsY(ithrow));
@@ -1316,7 +1317,7 @@ int main(int argc, char** argv)
     ND_RandomVtx_Sim_hadronic_hit.clear();
     ND_OnAxis_Sim_hadronic_hit.clear();
 
-    if(plotVerbose) {iwritten_vec.emplace_back(iwritten);}
+    iwritten_vec.emplace_back(iwritten);
     cout<< "ientry: " << ientry << ", iwritten: " << iwritten << endl;
     if (verbose) myfile << "ientry: " << ientry << ", iwritten: " << iwritten << endl;
 
@@ -1344,11 +1345,6 @@ int main(int argc, char** argv)
   effValues->Write();
   effPosND->Fill();
   effPosND->Write();
-  if(plotVerbose)
-  {
-    PosVec->Fill();
-    PosVec->Write();
-  }
   hist_vetoEnergyFD->Write();
 
   myfile.close();
