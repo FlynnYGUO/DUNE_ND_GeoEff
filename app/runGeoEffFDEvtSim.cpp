@@ -423,8 +423,6 @@ int main(int argc, char** argv)
     vector<vector<float>> CurrentThrowDepsX; // Coordinates of hadron hits X after random throws
     vector<vector<float>> CurrentThrowDepsY; // Coordinates of hadron hits Y after random throws
     vector<vector<float>> CurrentThrowDepsZ; // Coordinates of hadron hits Z after random throws
-    // vector<float> ND_Lar_ThrowDepsXYZ; // CurrentThrowDepsX,Y,Z - offset
-    vector<float> CurrentThrowVetoE;
     vector<float> CurrentThrowTotE;
 
   //------------------------------------------------------------------------------
@@ -493,7 +491,6 @@ int main(int argc, char** argv)
     effHdPlot->Branch("CurrentThrowDepsX",                       &CurrentThrowDepsX);
     effHdPlot->Branch("CurrentThrowDepsY",                       &CurrentThrowDepsY);
     effHdPlot->Branch("CurrentThrowDepsZ",                       &CurrentThrowDepsZ);
-    effHdPlot->Branch("CurrentThrowVetoE",                       &CurrentThrowVetoE);
     effHdPlot->Branch("CurrentThrowTotE",                        &CurrentThrowTotE);
   }
   // 6. Calculate Geo Eff
@@ -1123,8 +1120,7 @@ int main(int argc, char** argv)
             {
               CurrentThrowDepsX.emplace_back(eff->getCurrentThrowDepsX(ithrow));
               CurrentThrowDepsY.emplace_back(eff->getCurrentThrowDepsY(ithrow));
-              CurrentThrowDepsZ.emplace_back(eff->getCurrentThrowDepsZ(ithrow));
-              CurrentThrowVetoE.emplace_back(eff->getCurrentThrowsVetoE(ithrow));
+              CurrentThrowDepsZ.emplace_back(eff->getCurrentThrowDepsZ(ithrow));\
               CurrentThrowTotE.emplace_back(eff->getCurrentThrowsTotE());
             }
             // for( unsigned int it_throw = 0; it_throw < N_throws; it_throw ++)
@@ -1265,7 +1261,6 @@ int main(int argc, char** argv)
           CurrentThrowDepsX.clear();
           CurrentThrowDepsY.clear();
           CurrentThrowDepsZ.clear();
-          CurrentThrowVetoE.clear();
           CurrentThrowTotE.clear();
         }
 
