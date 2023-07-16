@@ -9,7 +9,6 @@ bool verbose = false; // default to false, true for debugging, a lot of printout
 bool myfileVerbose = false;
 bool throwfileVerbose = false;
 bool hadronhitVerbose = false;
-bool plotVerbose = false;
 bool ntupleVerbose = false;
 
 unsigned long N_throws = 64*64; // Use multiple of 64
