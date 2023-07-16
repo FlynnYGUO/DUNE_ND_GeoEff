@@ -485,14 +485,6 @@ int main(int argc, char** argv)
   effTreeFD->Branch("hadron_throw_result_LAr",                     &hadron_throw_result_LAr);
   effTreeFD->Branch("HadronHitEdeps",                       &HadronHitEdeps);
 
-  TTree *effHdPlot = new TTree("effHdPlot", "Hadronic hits Tree");
-  if(plotVerbose)
-  {
-    effHdPlot->Branch("CurrentThrowDepsX",                       &CurrentThrowDepsX);
-    effHdPlot->Branch("CurrentThrowDepsY",                       &CurrentThrowDepsY);
-    effHdPlot->Branch("CurrentThrowDepsZ",                       &CurrentThrowDepsZ);
-    effHdPlot->Branch("CurrentThrowTotE",                        &CurrentThrowTotE);
-  }
   // 6. Calculate Geo Eff
   double ND_LAr_dtctr_pos;
   double ND_LAr_vtx_pos;
@@ -1111,38 +1103,6 @@ int main(int argc, char** argv)
         eff->setHitSegEdeps(HadronHitEdeps);
         eff->setHitSegPoss(HadronHitPoss); // this is converted hadrom deposit pos in ND coordinate sys.
 
-        // Get coordinates of hadron hits after random throws
-
-          // for (unsigned int ithrow = 0; ithrow < N_throws; ithrow++ )
-          if(plotVerbose)
-          {
-            for (unsigned int ithrow = 0; ithrow < 35; ithrow++ )
-            {
-              CurrentThrowDepsX.emplace_back(eff->getCurrentThrowDepsX(ithrow));
-              CurrentThrowDepsY.emplace_back(eff->getCurrentThrowDepsY(ithrow));
-              CurrentThrowDepsZ.emplace_back(eff->getCurrentThrowDepsZ(ithrow));\
-              CurrentThrowTotE.emplace_back(eff->getCurrentThrowsTotE());
-            }
-            // for( unsigned int it_throw = 0; it_throw < N_throws; it_throw ++)
-            // {
-            //   for (Int_t ihadronhit = 0; ihadronhit < FD_Sim_n_hadronic_Edep_b; ihadronhit++)
-            //   {
-            //     ND_Lar_ThrowDepsXYZ.emplace_back(CurrentThrowDepsX[it_throw][ihadronhit] - i_ND_off_axis_pos);
-            //     ND_Lar_ThrowDepsXYZ.emplace_back(CurrentThrowDepsY[it_throw][ihadronhit] - NDLAr_OnAxis_offset[1]);
-            //     ND_Lar_ThrowDepsXYZ.emplace_back(CurrentThrowDepsZ[it_throw][ihadronhit] - NDLAr_OnAxis_offset[2]);
-            //     if (hadronhitVerbose)
-            //     {
-            //       myfile << "ithrow: " << it_throw << ", ihadronhit: " << ihadronhit << "\n";
-            //       myfile << "ND_Lar_ThrowDepsX:" << CurrentThrowDepsX[it_throw][ihadronhit] - i_ND_off_axis_pos << "\n";
-            //       myfile << "ND_Lar_ThrowDepsY:" << CurrentThrowDepsY[it_throw][ihadronhit] - NDLAr_OnAxis_offset[1] << "\n";
-            //       myfile << "ND_Lar_ThrowDepsZ:" << CurrentThrowDepsZ[it_throw][ihadronhit] - NDLAr_OnAxis_offset[2] << "\n\n";
-            //     }
-            //   }
-            // }
-          }
-
-
-
 
         // Set offset between MC coordinate system and det volumes
         eff->setOffAxisOffsetX(i_ND_off_axis_pos);
@@ -1254,15 +1214,6 @@ int main(int argc, char** argv)
 
         hadron_throw_result_vtx.emplace_back(hadron_throw_result);
         hadron_throw_result.clear();
-
-
-        if(plotVerbose)
-        {
-          CurrentThrowDepsX.clear();
-          CurrentThrowDepsY.clear();
-          CurrentThrowDepsZ.clear();
-          CurrentThrowTotE.clear();
-        }
 
       } // end Loop over ND_vtx_vx_vec
 
