@@ -387,7 +387,6 @@ int main(int argc, char** argv)
     vector<vector<float>> CurrentThrowDepsY; // Coordinates of hadron hits Y after random throws
     vector<vector<float>> CurrentThrowDepsZ; // Coordinates of hadron hits Z after random throws
     // vector<float> ND_Lar_ThrowDepsXYZ; // CurrentThrowDepsX,Y,Z - offset
-    vector<float> CurrentThrowVetoE;
     vector<float> CurrentThrowTotE;
 
   //------------------------------------------------------------------------------
@@ -426,7 +425,6 @@ int main(int argc, char** argv)
     effTreeFD->Branch("CurrentThrowDepsX",                       &CurrentThrowDepsX);
     effTreeFD->Branch("CurrentThrowDepsY",                       &CurrentThrowDepsY);
     effTreeFD->Branch("CurrentThrowDepsZ",                       &CurrentThrowDepsZ);
-    effTreeFD->Branch("CurrentThrowVetoE",                       &CurrentThrowVetoE);
     effTreeFD->Branch("CurrentThrowTotE",                        &CurrentThrowTotE);
   effTreeFD->Branch("HadronHitEdeps",                       &HadronHitEdeps);
   // 6. Calculate Geo Eff
@@ -445,12 +443,10 @@ int main(int argc, char** argv)
 
   vector<Int_t> iwritten_vec;
   TTree *PosVec = new TTree("PosVec", "ND OffAxis pos vec and ND LAr pos vec");
-  if(plotVerbose)
-  {
     PosVec->Branch("iwritten_vec",                             &iwritten_vec);
     PosVec->Branch("ND_LAr_dtctr_pos_vec",                     &ND_LAr_dtctr_pos_vec);                             // vector<double>: entries = written evts * ND_off_axis_pos_steps
     PosVec->Branch("ND_vtx_vx_vec",                            &ND_vtx_vx_vec);
-  }
+
 
   //
   //------------------------------------------------------------------------------
@@ -473,7 +469,7 @@ int main(int argc, char** argv)
   ThrowsFD->Branch("throwRot",  &throwRot);
 
   // Mean neutrino production point (beam coordinate) on z axis as a function of ND off-axis position
-  TGraph* gDecayZ = new TGraph(14, OffAxisPoints, meanPDPZ);
+  TGraph* gDecayZ = new TGraph(28, OffAxisPoints, meanPDPZ);
   //
   //------------------------------------------------------------------------------
   //------------------------------------------------------------------------------
@@ -512,11 +508,11 @@ int main(int argc, char** argv)
   eff->setActiveY(NDActiveVol_min[1], NDActiveVol_max[1]);
   eff->setActiveZ(NDActiveVol_min[2], NDActiveVol_max[2]);
 
-  // Range for translation throws. Use full active volume but fix X.
+  // Range for translation throws. Use full ND FV volume but fix X.
   eff->setRangeX(-1, -1);
   eff->setRandomizeX(false);
-  eff->setRangeY(NDActiveVol_min[1], NDActiveVol_max[1]);
-  eff->setRangeZ(NDActiveVol_min[2], NDActiveVol_max[2]);
+  eff->setRangeY(ND_FV_min[1], ND_FV_max[1]);
+  eff->setRangeZ(ND_FV_min[2], ND_FV_max[2]);
 
   // Set offset between MC coordinate system and det volumes
   eff->setOffsetX(NDLAr_OnAxis_offset[0]);
@@ -1019,13 +1015,12 @@ int main(int argc, char** argv)
 
         // Get coordinates of hadron hits after random throws
 
-          // // for (unsigned int ithrow = 0; ithrow < N_throws; ithrow++ )
-          for (unsigned int ithrow = 0; ithrow < 20; ithrow++ )
+          // for (unsigned int ithrow = 0; ithrow < N_throws; ithrow++ )
+          for (unsigned int ithrow = 4072; ithrow < 4083; ithrow++ )
           {
             CurrentThrowDepsX.emplace_back(eff->getCurrentThrowDepsX(ithrow));
             CurrentThrowDepsY.emplace_back(eff->getCurrentThrowDepsY(ithrow));
             CurrentThrowDepsZ.emplace_back(eff->getCurrentThrowDepsZ(ithrow));
-            CurrentThrowVetoE.emplace_back(eff->getCurrentThrowsVetoE(ithrow));
             CurrentThrowTotE.emplace_back(eff->getCurrentThrowsTotE());
           }
           // for( unsigned int it_throw = 0; it_throw < N_throws; it_throw ++)
@@ -1158,7 +1153,6 @@ int main(int argc, char** argv)
           CurrentThrowDepsX.clear();
           CurrentThrowDepsY.clear();
           CurrentThrowDepsZ.clear();
-          CurrentThrowVetoE.clear();
           CurrentThrowTotE.clear();
 
       } // end Loop over ND_vtx_vx_vec
@@ -1173,7 +1167,7 @@ int main(int argc, char** argv)
     ND_RandomVtx_Sim_hadronic_hit.clear();
     ND_OnAxis_Sim_hadronic_hit.clear();
 
-    if(plotVerbose) {iwritten_vec.emplace_back(iwritten);}
+    iwritten_vec.emplace_back(iwritten);
     cout<< "ientry: " << ientry << ", iwritten: " << iwritten << endl;
     if (verbose) myfile << "ientry: " << ientry << ", iwritten: " << iwritten << endl;
 
@@ -1195,15 +1189,13 @@ int main(int argc, char** argv)
   //------------------------------------------------------------------------------
   //
   // Write trees
-  TFile * outFile = new TFile("Output_FDGeoEff_hadron_68092381.root", "RECREATE");
+  TFile * outFile = new TFile("Output_FDGeoEff_2293930_985.root", "RECREATE");
   ThrowsFD->Write();
   effTreeFD->Write();
   effValues->Write();
-  if(plotVerbose)
-  {
-    PosVec->Fill();
-    PosVec->Write();
-  }
+  PosVec->Fill();
+  PosVec->Write();
+
   hist_vetoEnergyFD->Write();
 
   myfile.close();

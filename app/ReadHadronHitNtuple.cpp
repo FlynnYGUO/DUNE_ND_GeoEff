@@ -47,9 +47,10 @@ float vSize = 30.;
 void ReadHadronHitNtuple_ND()
 {
   gROOT->Reset();
+  gStyle->SetOptStat(0); // Remove Stat Box
 
   // Input FDroot file
-  TString FileIn = "/dune/app/users/flynnguo/NDEff/DUNE_ND_GeoEff/bin/Output_FDGeoEff_hadron_61454381.root";
+  TString FileIn = "/dune/app/users/flynnguo/NDEff/DUNE_ND_GeoEff/bin/Output_FDGeoEff_2293930_985.root";
   //
   // Read branch from input trees
   //
@@ -63,11 +64,10 @@ void ReadHadronHitNtuple_ND()
   t_effValues->SetBranchAddress("iwritten",         &iwritten);
   t_effValues->SetBranchAddress("ND_LAr_dtctr_pos",   &ND_LAr_dtctr_pos);
   t_effValues->SetBranchAddress("ND_LAr_vtx_pos",       &ND_LAr_vtx_pos);
-  t_effValues->SetBranchAddress("ND_GeoEff",   &ND_GeoEff);
   //hardon info
   TChain *t_effTree = new TChain("effTreeND");
   t_effTree->Add(FileIn.Data());
-  int ND_Sim_n_hadronic_Edep_a;
+  int ND_Sim_n_hadronic_Edep_b;
   vector<float> *HadronHitEdeps =0; // Hadron hit segment energy deposits [MeV]
   vector<vector<float>> *CurrentThrowDepsX = 0; // Coordinates of hadron hits X after random throws
   vector<vector<float>> *CurrentThrowDepsY =0; // Coordinates of hadron hits Y after random throws
@@ -76,7 +76,7 @@ void ReadHadronHitNtuple_ND()
   vector<float> *CurrentThrowTotE = 0;
   vector<vector<float>> *ND_OffAxis_Sim_hadronic_hit_xyz=0; // coordinates of hadron hits before random throws
 
-  t_effTree->SetBranchAddress("ND_Sim_n_hadronic_Edep_a",         &ND_Sim_n_hadronic_Edep_a);
+  t_effTree->SetBranchAddress("ND_Sim_n_hadronic_Edep_b",         &ND_Sim_n_hadronic_Edep_b);
   t_effTree->SetBranchAddress("CurrentThrowDepsX",         &CurrentThrowDepsX);
   t_effTree->SetBranchAddress("CurrentThrowDepsY",         &CurrentThrowDepsY);
   t_effTree->SetBranchAddress("CurrentThrowDepsZ",         &CurrentThrowDepsZ);
@@ -107,49 +107,38 @@ void ReadHadronHitNtuple_ND()
   Int_t ND_vtx_vx_vec_size = ND_vtx_vx_vec->size();
   Int_t iwritten_vec_size = iwritten_vec->size();
   Int_t tot_size = ND_LAr_dtctr_pos_vec_size*ND_vtx_vx_vec_size;
-  Int_t hadronhit_n_plots = tot_size * N_throws;
-
+  Int_t hadronhit_n_plots = tot_size*N_throws;
   Int_t nentries = t_effValues->GetEntries();
 
-  // Output
-  // TFile * outFile = new TFile("HadronHitPlots_61454381.root", "RECREATE");
-  // TDirectory *IPhadronhit =(TDirectory*)outFile->mkdir("hadron hits"); //create a new folder in the root file
-  // TDirectory *IPhadronhit_offaxis =(TDirectory*)outFile->mkdir("OffAxis hadron hits"); //create a new folder in the root file
 
-  // Canvas
+  // vector<Int_t> a_ND_off_axis_pos_vec = {-2800, -1600, 0};
+  vector<Int_t> a_ND_off_axis_pos_vec = {0};
+  vector<Int_t> a_ND_vtx_vx_vec = {-299, -292, -285, -278, -271, -264, -216, -168, -120, -72, -24, 24, 72, 120, 168, 216, 264, 271, 278, 285, 292, 299};
+  // vector<Int_t> a_ND_vtx_vx_vec = {-168, -216};
 
-  TCanvas** c_hadronhit = new TCanvas*[hadronhit_n_plots];
-  TH2F** h_hadronhit_xy = new TH2F*[hadronhit_n_plots];
-  TH2F** h_hadronhit_zx = new TH2F*[hadronhit_n_plots];
-  TH2F** h_hadronhit_zy = new TH2F*[hadronhit_n_plots];
+  // Set Palette
+  gStyle->SetPalette(55);
+  gStyle->SetOptStat(0);
 
+  // --------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------
+  // ND event display w.r.t different vertex positions
+  // --------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------
 
   TCanvas** c_offaxis_hadronhit = new TCanvas*[tot_size];
   TH2F** h_offaxis_hadronhit_xy = new TH2F*[tot_size];
   TH2F** h_offaxis_hadronhit_zx = new TH2F*[tot_size];
   TH2F** h_offaxis_hadronhit_zy = new TH2F*[tot_size];
 
-  // Set Palette
-  gStyle->SetPalette(55);
-  gStyle->SetOptStat(110110);
-  gStyle->SetStatX(0.85);		//Stat box x position (top right hand corner)
-  gStyle->SetStatY(0.9); 		//Stat box y position
-  gStyle->SetStatW(0.2);	 		//Stat box width as fraction of pad size
-  gStyle->SetStatH(0.15);	 		//Size of each line in stat box
-  // gStyle->SetStatFontSize(0.02);	 		//Size of each line in stat box
-  // vector<Int_t> a_ND_off_axis_pos_vec = {-2800, -1600, 0};
-  vector<Int_t> a_ND_off_axis_pos_vec = {0};
-  vector<Int_t> a_ND_vtx_vx_vec = {-299, -292, -285, -278, -271, -216, -24, 24, 216, 264, 271, 278, 285, 292, 299};
-  // Store info
-  ofstream myfile;
-   myfile.open ("Output_HadronhitCheck_61454381.txt");
-
-  // Loop all events
   for (Int_t i_iwritten : *iwritten_vec)
   {
-    // if (i_iwritten != 1) continue;
-    if(myfileVerbose) myfile<< "i_iwritten: " << i_iwritten << "\n\n";
+    //choose specific iwrittenR
+    // if (i_iwritten != 5) continue;
     cout << "i_iwritten: " << i_iwritten << "\n";
+
     Int_t canvas_counter = 0;
     for (Int_t i_ND_LAr_dtctr_pos: a_ND_off_axis_pos_vec)
     {
@@ -162,6 +151,28 @@ void ReadHadronHitNtuple_ND()
           t_effValues->GetEntry(i_entry);
           if (ND_LAr_dtctr_pos == i_ND_LAr_dtctr_pos && ND_LAr_vtx_pos == i_ND_LAr_vtx_pos)
           {
+            // create hist
+            TString h_hadronhit_xy_name = Form("hadronhitXY_event_%d_OffAxis_%d_cm_LAr_%d_cm", i_iwritten,i_ND_LAr_dtctr_pos,i_ND_LAr_vtx_pos);
+            // TString h_hadronhit_xy_name = Form(" ");
+            h_offaxis_hadronhit_xy[canvas_counter] = new TH2F(h_hadronhit_xy_name,h_hadronhit_xy_name,200,-500,500,200,-500,500);
+            h_offaxis_hadronhit_xy[canvas_counter]->GetXaxis()->SetTitle("X [cm]");
+            h_offaxis_hadronhit_xy[canvas_counter]->GetYaxis()->SetTitle("Y [cm]");
+            h_offaxis_hadronhit_xy[canvas_counter]->GetZaxis()->SetTitle("HadronHitEdeps [MeV]");
+
+            TString h_hadronhit_zx_name = Form("hadronhitZX_event_%d_OffAxis_%d_cm_LAr_%d_cm", i_iwritten,i_ND_LAr_dtctr_pos,i_ND_LAr_vtx_pos);
+            // TString h_hadronhit_zx_name = Form(" ");
+            h_offaxis_hadronhit_zx[canvas_counter] = new TH2F(h_hadronhit_zx_name,h_hadronhit_zx_name,200,-100,600,200,-500,500);
+            h_offaxis_hadronhit_zx[canvas_counter]->GetXaxis()->SetTitle("Z [cm]");
+            h_offaxis_hadronhit_zx[canvas_counter]->GetYaxis()->SetTitle("X [cm]");
+            h_offaxis_hadronhit_zx[canvas_counter]->GetZaxis()->SetTitle("HadronHitEdeps [MeV]");
+
+            TString h_hadronhit_zy_name = Form("hadronhitZY_event_%d_OffAxis_%d_cm_LAr_%d_cm", i_iwritten,i_ND_LAr_dtctr_pos,i_ND_LAr_vtx_pos);
+            // TString h_hadronhit_zy_name = Form(" ");
+            h_offaxis_hadronhit_zy[canvas_counter] = new TH2F(h_hadronhit_zy_name,h_hadronhit_zy_name,200,-100,600,200,-500,500);
+            h_offaxis_hadronhit_zy[canvas_counter]->GetXaxis()->SetTitle("Z [cm]");
+            h_offaxis_hadronhit_zy[canvas_counter]->GetYaxis()->SetTitle("Y [cm]");
+            h_offaxis_hadronhit_zy[canvas_counter]->GetZaxis()->SetTitle("HadronHitEdeps [MeV]");
+            // create vector to store hadronic hit
             Int_t offset_X = i_ND_LAr_dtctr_pos;
             vector<float> ND_OffAxis_hadronic_hit_xyz;
             vector<vector<float>> ND_OffAxis_hadronic_hit;
@@ -178,29 +189,11 @@ void ReadHadronHitNtuple_ND()
               ND_OffAxis_hadronic_hit.emplace_back(ND_OffAxis_hadronic_hit_xyz);
               ND_OffAxis_hadronic_hit_xyz.clear();
               it_hadronhit_counter++;
-            }
-
-            TString h_hadronhit_xy_name = Form("hadronhitXY_event_%d_OffAxis_%d_cm_LAr_%d_cm", i_iwritten,i_ND_LAr_dtctr_pos,i_ND_LAr_vtx_pos);
-            h_offaxis_hadronhit_xy[canvas_counter] = new TH2F(h_hadronhit_xy_name,h_hadronhit_xy_name,200,-500,500,200,-500,500);
-            h_offaxis_hadronhit_xy[canvas_counter]->GetXaxis()->SetTitle("X [cm]");
-            h_offaxis_hadronhit_xy[canvas_counter]->GetYaxis()->SetTitle("Y [cm]");
-            h_offaxis_hadronhit_xy[canvas_counter]->GetZaxis()->SetTitle("HadronHitEdeps [MeV]");
-
-            TString h_hadronhit_zx_name = Form("hadronhitZX_event_%d_OffAxis_%d_cm_LAr_%d_cm", i_iwritten,i_ND_LAr_dtctr_pos,i_ND_LAr_vtx_pos);
-            h_offaxis_hadronhit_zx[canvas_counter] = new TH2F(h_hadronhit_zx_name,h_hadronhit_zx_name,200,-100,600,200,-500,500);
-            h_offaxis_hadronhit_zx[canvas_counter]->GetXaxis()->SetTitle("Z [cm]");
-            h_offaxis_hadronhit_zx[canvas_counter]->GetYaxis()->SetTitle("X [cm]");
-            h_offaxis_hadronhit_zx[canvas_counter]->GetZaxis()->SetTitle("HadronHitEdeps [MeV]");
-
-            TString h_hadronhit_zy_name = Form("hadronhitZY_event_%d_OffAxis_%d_cm_LAr_%d_cm", i_iwritten,i_ND_LAr_dtctr_pos,i_ND_LAr_vtx_pos);
-            h_offaxis_hadronhit_zy[canvas_counter] = new TH2F(h_hadronhit_zy_name,h_hadronhit_zy_name,200,-100,600,200,-500,500);
-            h_offaxis_hadronhit_zy[canvas_counter]->GetXaxis()->SetTitle("Z [cm]");
-            h_offaxis_hadronhit_zy[canvas_counter]->GetYaxis()->SetTitle("Y [cm]");
-            h_offaxis_hadronhit_zy[canvas_counter]->GetZaxis()->SetTitle("HadronHitEdeps [MeV]");
-
-
+            }// end hadronhit emplace_back
             Double_t vetoEnergyND = 0.;
             Double_t totEnergyND = 0.;
+            Double_t outEnergyND = 0.;
+
 
             for(Int_t ihadronhit = 0; ihadronhit < ND_OffAxis_hadronic_hit.size(); ihadronhit++)
             {
@@ -208,7 +201,7 @@ void ReadHadronHitNtuple_ND()
               h_offaxis_hadronhit_zx[canvas_counter]->Fill(ND_OffAxis_hadronic_hit[ihadronhit][2]-NDLAr_OnAxis_offset[2],ND_OffAxis_hadronic_hit[ihadronhit][0]-offset_X,HadronHitEdeps->at(ihadronhit));
               h_offaxis_hadronhit_zy[canvas_counter]->Fill(ND_OffAxis_hadronic_hit[ihadronhit][2]-NDLAr_OnAxis_offset[2],ND_OffAxis_hadronic_hit[ihadronhit][1]-NDLAr_OnAxis_offset[1],HadronHitEdeps->at(ihadronhit));
 
-              totEnergyND += HadronHitEdeps->at(ihadronhit);;
+              totEnergyND += HadronHitEdeps->at(ihadronhit);
               if ( ( ND_OffAxis_hadronic_hit[ihadronhit][0]-offset_X                      > NDActiveVol_min[0]         && ND_OffAxis_hadronic_hit[ihadronhit][0]-offset_X                      < NDActiveVol_min[0] + vSize ) ||
                    ( ND_OffAxis_hadronic_hit[ihadronhit][1]-NDLAr_OnAxis_offset[1]        > NDActiveVol_min[1]         && ND_OffAxis_hadronic_hit[ihadronhit][1]-NDLAr_OnAxis_offset[1]        < NDActiveVol_min[1] + vSize ) ||
                    ( ND_OffAxis_hadronic_hit[ihadronhit][2]-NDLAr_OnAxis_offset[2]        > NDActiveVol_min[2]         && ND_OffAxis_hadronic_hit[ihadronhit][2]-NDLAr_OnAxis_offset[2]        < NDActiveVol_min[2] + vSize ) ||
@@ -218,20 +211,26 @@ void ReadHadronHitNtuple_ND()
                  ){
                    vetoEnergyND += HadronHitEdeps->at(ihadronhit);
               } // end if hadron deposit in FD veto region
-              // add outputs
-              if(myfileVerbose)
+              else if
+              (
+               ( ND_OffAxis_hadronic_hit[ihadronhit][0]-offset_X                      < NDActiveVol_min[0] ) ||
+               ( ND_OffAxis_hadronic_hit[ihadronhit][1]-NDLAr_OnAxis_offset[1]        < NDActiveVol_min[1] ) ||
+               ( ND_OffAxis_hadronic_hit[ihadronhit][2]-NDLAr_OnAxis_offset[2]        < NDActiveVol_min[2] ) ||
+               ( ND_OffAxis_hadronic_hit[ihadronhit][0]-offset_X                      > NDActiveVol_max[0] ) ||
+               ( ND_OffAxis_hadronic_hit[ihadronhit][1]-NDLAr_OnAxis_offset[1]        > NDActiveVol_max[1] ) ||
+               ( ND_OffAxis_hadronic_hit[ihadronhit][2]-NDLAr_OnAxis_offset[2]        > NDActiveVol_max[2] )
+              )
               {
-                myfile << "ND_LAr_dtctr_pos: " << ND_LAr_dtctr_pos << ", ND_LAr_vtx_pos: " << ND_LAr_vtx_pos << ", ihadronhit: " << ihadronhit << "\n";
-                myfile << "ND_OffAxis_hadronic_hit_X: " << ND_OffAxis_hadronic_hit[ihadronhit][0] - offset_X << "\n";
-                myfile << "ND_OffAxis_hadronic_hit_Y: " << ND_OffAxis_hadronic_hit[ihadronhit][1] - NDLAr_OnAxis_offset[1] << "\n";
-                myfile << "ND_OffAxis_hadronic_hit_Z: " << ND_OffAxis_hadronic_hit[ihadronhit][2] - NDLAr_OnAxis_offset[2] << "\n\n";
-              }
-            }
-            TString energy_name = Form("VetoE_%.2f_MeV, TotE_%.2f_MeV", vetoEnergyND, totEnergyND);
+                outEnergyND += HadronHitEdeps->at(ihadronhit);
+              } // end if hadron deposit outside FD active region
+            }// end hadronhit loop
+            cout<<"i_ND_LAr_vtx_pos: " << i_ND_LAr_vtx_pos << ", totE: "<<totEnergyND<< ", outE: " << outEnergyND << ", vetoEnergyND:" << vetoEnergyND << endl;
+            TString energy_name = Form("VetoE_%.2f_MeV, OutE_%.2f_MeV, TotE_%.2f_MeV", vetoEnergyND, outEnergyND, totEnergyND);
 
             // create canvas
             TString c_hadronhit_name = Form("c_hadronhit_event_%d_OffAxis_%d_cm_LAr_%d_cm", i_iwritten,i_ND_LAr_dtctr_pos,i_ND_LAr_vtx_pos);
             TString c_hadronhit_title = Form("hadronhit event_%d_OffAxis_%d_cm_LAr_%d_cm", i_iwritten,i_ND_LAr_dtctr_pos,i_ND_LAr_vtx_pos);
+            // TString c_hadronhit_title = Form(" ");
             c_offaxis_hadronhit[canvas_counter] = new TCanvas(c_hadronhit_name, c_hadronhit_title, 0,53,995,597);
             c_offaxis_hadronhit[canvas_counter]->Clear();
             c_offaxis_hadronhit[canvas_counter]->SetLeftMargin(0.10);
@@ -256,6 +255,7 @@ void ReadHadronHitNtuple_ND()
             xy_box2->SetLineWidth(2);
             xy_box2->SetFillStyle(0);
             xy_box2->Draw();
+            // Draw Veto E and Tot E
             TLatex xy_text(-400,400,energy_name);
             xy_text.DrawClone();
 
@@ -280,6 +280,7 @@ void ReadHadronHitNtuple_ND()
             zx_box2->SetLineWidth(2);
             zx_box2->SetFillStyle(0);
             zx_box2->Draw();
+            // Draw Veto E and Tot E
             TLatex xz_text(-50,400,energy_name);
             xz_text.DrawClone();
 
@@ -301,6 +302,7 @@ void ReadHadronHitNtuple_ND()
             yz_box2->SetLineWidth(2);
             yz_box2->SetFillStyle(0);
             yz_box2->Draw();
+            // Draw Veto E and Tot E
             TLatex yz_text(-50,400,energy_name);
             yz_text.DrawClone();
 
@@ -308,23 +310,40 @@ void ReadHadronHitNtuple_ND()
             gPad->Modified();
             gSystem->ProcessEvents();
 
-            // outFile->cd("OffAxis hadron hits");
-            // c_offaxis_hadronhit[canvas_counter]->Write();
-            c_offaxis_hadronhit[canvas_counter]->SaveAs( TString::Format("HadronHitPlots/c_event_%d_onaxis_hadronhit_%d.pdf",iwritten, canvas_counter ) );
-            // c_offaxis_hadronhit[canvas_counter]->Close();
-
-            if(verbose) cout << "canvas_counter: " << canvas_counter << ", offset_X: " << offset_X << endl;
+            c_offaxis_hadronhit[canvas_counter]->SaveAs( TString::Format("HadronHitPlots_ND/c_event_%d_onaxis_hadronhit_%d.pdf",iwritten, canvas_counter ) );
             canvas_counter++;
           }
-        }
-      }
-    }
-    //
-    //------------------------------------------------------------------------------
-    //------------------------------------------------------------------------------
-    //------------------------------------------------------------------------------
-    //
-    // Create canvas for hadron hit
+        }//end ientry
+      }//end vtx pos inside LAr
+    }//end LAr pos
+  }//end iwritten
+
+  // delete all canvas
+  delete[] h_offaxis_hadronhit_zy;
+  delete[] h_offaxis_hadronhit_zx;
+  delete[] h_offaxis_hadronhit_xy;
+  delete[] c_offaxis_hadronhit;
+
+  // --------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------
+  // ND event display for throws w.r.t different vertex positions
+  // --------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------
+
+  TCanvas** c_hadronhit = new TCanvas*[hadronhit_n_plots];
+  TH2F** h_hadronhit_xy = new TH2F*[hadronhit_n_plots];
+  TH2F** h_hadronhit_zx = new TH2F*[hadronhit_n_plots];
+  TH2F** h_hadronhit_zy = new TH2F*[hadronhit_n_plots];
+
+
+  for (Int_t i_iwritten : *iwritten_vec)
+  {
+    //choose specific iwrittenR
+    // if (i_iwritten != 7) continue;
+    cout << "i_iwritten: " << i_iwritten << "\n";
+
     Int_t n_plot = 0;
     Int_t i_n_plot = 0;
     for (Int_t i_ND_LAr_dtctr_pos: a_ND_off_axis_pos_vec)
@@ -336,7 +355,6 @@ void ReadHadronHitNtuple_ND()
         {
           t_effTree->GetEntry(i_entry);
           t_effValues->GetEntry(i_entry);
-
           if (ND_LAr_dtctr_pos == i_ND_LAr_dtctr_pos && ND_LAr_vtx_pos == i_ND_LAr_vtx_pos)
           {
             Int_t offset_X = i_ND_LAr_dtctr_pos;
@@ -347,7 +365,7 @@ void ReadHadronHitNtuple_ND()
             int it_throw_x_counter =0;
             for (vector<vector<float>>::iterator it_throw = CurrentThrowDepsX->begin(); it_throw!=CurrentThrowDepsX->end(); ++it_throw)
             {
-              for (Int_t ihadronhit =0; ihadronhit < ND_Sim_n_hadronic_Edep_a; ihadronhit++)
+              for (Int_t ihadronhit =0; ihadronhit < ND_Sim_n_hadronic_Edep_b; ihadronhit++)
               {
                 if(verbose) cout << "it_throw_x_counter: " << it_throw_x_counter << ", ihadronhit: " << ihadronhit << ", hit_x: " << it_throw->at(ihadronhit) << endl;
                 ThrowDepsX_hit.emplace_back(it_throw->at(ihadronhit));
@@ -355,14 +373,14 @@ void ReadHadronHitNtuple_ND()
               ThrowDepsX.emplace_back(ThrowDepsX_hit);
               ThrowDepsX_hit.clear();
               it_throw_x_counter++;
-            }
+            }// end CurrentThrowDepsX
             vector<float> ThrowDepsY_hit;
             vector<vector<float>> ThrowDepsY;
             ThrowDepsY.clear();
             int it_throw_y_counter =0;
             for (vector<vector<float>>::iterator it_throw = CurrentThrowDepsY->begin(); it_throw!=CurrentThrowDepsY->end(); ++it_throw)
             {
-              for (Int_t ihadronhit =0; ihadronhit < ND_Sim_n_hadronic_Edep_a; ihadronhit++)
+              for (Int_t ihadronhit =0; ihadronhit < ND_Sim_n_hadronic_Edep_b; ihadronhit++)
               {
                 if(verbose) cout << "it_throw_x_counter: " << it_throw_x_counter << ", ihadronhit: " << ihadronhit << ", hit_y: " << it_throw->at(ihadronhit) << endl;
                 ThrowDepsY_hit.emplace_back(it_throw->at(ihadronhit));
@@ -370,14 +388,14 @@ void ReadHadronHitNtuple_ND()
               ThrowDepsY.emplace_back(ThrowDepsY_hit);
               ThrowDepsY_hit.clear();
               it_throw_y_counter++;
-            }
+            }// end CurrentThrowDepsY
             vector<float> ThrowDepsZ_hit;
             vector<vector<float>> ThrowDepsZ;
             ThrowDepsZ.clear();
             int it_throw_z_counter =0;
             for (vector<vector<float>>::iterator it_throw = CurrentThrowDepsZ->begin(); it_throw!=CurrentThrowDepsZ->end(); ++it_throw)
             {
-              for (Int_t ihadronhit =0; ihadronhit < ND_Sim_n_hadronic_Edep_a; ihadronhit++)
+              for (Int_t ihadronhit =0; ihadronhit < ND_Sim_n_hadronic_Edep_b; ihadronhit++)
               {
                 if(verbose) cout<< "ND_LAr_dtctr_pos: " << ND_LAr_dtctr_pos << ", ND_LAr_vtx_pos: " << ND_LAr_vtx_pos << ", ithrow: " << it_throw_z_counter << ", ihadronhit: " << ihadronhit << ", hit_z: " << it_throw->at(ihadronhit) << endl;
                 ThrowDepsZ_hit.emplace_back(it_throw->at(ihadronhit));
@@ -385,47 +403,82 @@ void ReadHadronHitNtuple_ND()
               ThrowDepsZ.emplace_back(ThrowDepsZ_hit);
               ThrowDepsZ_hit.clear();
               it_throw_z_counter++;
-            }
+            }// end CurrentThrowDepsZ
 
+            int throw_couter = 0;
             // Draw plots
-            // for(Int_t ithrow = 0; ithrow < N_throws; ithrow++)
-            for(Int_t ithrow = 0; ithrow < 10; ithrow++)
+            // for(Int_t ithrow = 0; ithrow < N_throws; ithrow++) // check the throw number defined in the runGeoEffFDEvtSim_hadronplot.cpp
+            // for(Int_t ithrow = 0; ithrow < 15; ithrow++)
+            // vector<int> common_v={ 19, 30, 33, 38 }; // can only pick throw smaller than 50
+            // for (Int_t ithrow: common_v)
+            for (Int_t ithrow = 0; ithrow < 11; ithrow++ )
             {
-              cout << "ithrow: " << ithrow <<endl;
+              // cout << "ithrow: " << ithrow <<endl;
+              // for all events
               n_plot = i_n_plot*N_throws + ithrow;
 
               TString h_hadronhit_xy_name = Form("hadronhitXY_event_%d_OffAxis_%d_cm_LAr_%d_cm_throw_%d", i_iwritten,i_ND_LAr_dtctr_pos,i_ND_LAr_vtx_pos,ithrow);
+              // TString h_hadronhit_xy_name = Form(" ");
               h_hadronhit_xy[n_plot] = new TH2F(h_hadronhit_xy_name,h_hadronhit_xy_name,200,-500,500,200,-500,500);
               h_hadronhit_xy[n_plot]->GetXaxis()->SetTitle("X [cm]");
               h_hadronhit_xy[n_plot]->GetYaxis()->SetTitle("Y [cm]");
               h_hadronhit_xy[n_plot]->GetZaxis()->SetTitle("HadronHitEdeps [MeV]");
 
               TString h_hadronhit_zx_name = Form("hadronhitZX_event_%d_OffAxis_%d_cm_LAr_%d_cm_throw_%d", i_iwritten,i_ND_LAr_dtctr_pos,i_ND_LAr_vtx_pos,ithrow);
+              // TString h_hadronhit_zx_name = Form(" ");
               h_hadronhit_zx[n_plot] = new TH2F(h_hadronhit_zx_name,h_hadronhit_zx_name,200,-100,600,200,-500,500);
               h_hadronhit_zx[n_plot]->GetXaxis()->SetTitle("Z [cm]");
               h_hadronhit_zx[n_plot]->GetYaxis()->SetTitle("X [cm]");
               h_hadronhit_zx[n_plot]->GetZaxis()->SetTitle("HadronHitEdeps [MeV]");
 
               TString h_hadronhit_zy_name = Form("hadronhitZY_event_%d_OffAxis_%d_cm_LAr_%d_cm_throw_%d", i_iwritten,i_ND_LAr_dtctr_pos,i_ND_LAr_vtx_pos,ithrow);
+              // TString h_hadronhit_zy_name = Form(" ");
               h_hadronhit_zy[n_plot] = new TH2F(h_hadronhit_zy_name,h_hadronhit_zy_name,200,-100,600,200,-500,500);
               h_hadronhit_zy[n_plot]->GetXaxis()->SetTitle("Z [cm]");
               h_hadronhit_zy[n_plot]->GetYaxis()->SetTitle("Y [cm]");
               h_hadronhit_zy[n_plot]->GetZaxis()->SetTitle("HadronHitEdeps [MeV]");
 
-              for(Int_t ihadronhit =0; ihadronhit < ND_Sim_n_hadronic_Edep_a; ihadronhit++)
+
+              // calculate energy outside the ND active volume
+              Double_t CurrentThrowoutEnergyND = 0.;
+              Double_t CurrentThrowvetoEnergyND = 0.;
+
+              for(Int_t ihadronhit = 0; ihadronhit < ND_Sim_n_hadronic_Edep_b; ihadronhit++)
               {
+                // cout << "ihadronhit: " << ihadronhit << ", HadronHitEdeps: " << HadronHitEdeps->at(ihadronhit) << endl;
                 h_hadronhit_xy[n_plot]->Fill(ThrowDepsX[ithrow][ihadronhit] - offset_X,ThrowDepsY[ithrow][ihadronhit]-NDLAr_OnAxis_offset[1],HadronHitEdeps->at(ihadronhit));
                 h_hadronhit_zx[n_plot]->Fill(ThrowDepsZ[ithrow][ihadronhit] - NDLAr_OnAxis_offset[2],ThrowDepsX[ithrow][ihadronhit] - offset_X,HadronHitEdeps->at(ihadronhit));
                 h_hadronhit_zy[n_plot]->Fill(ThrowDepsZ[ithrow][ihadronhit] - NDLAr_OnAxis_offset[2],ThrowDepsY[ithrow][ihadronhit] - NDLAr_OnAxis_offset[1],HadronHitEdeps->at(ihadronhit));
-                if(myfileVerbose)
-                {
-                  myfile << "ND_LAr_dtctr_pos: " << ND_LAr_dtctr_pos << ", ND_LAr_vtx_pos: " << ND_LAr_vtx_pos << ", ThrowDepsX at ithrow" << ithrow << ", at ihadronhit: " << ihadronhit << ", is: " << ThrowDepsX[ithrow][ihadronhit] - offset_X<< "\n";
-                  myfile << "ND_LAr_dtctr_pos: " << ND_LAr_dtctr_pos << ", ND_LAr_vtx_pos: " << ND_LAr_vtx_pos << ", ThrowDepsY at ithrow" << ithrow << ", at ihadronhit: " << ihadronhit << ", is: " << ThrowDepsY[ithrow][ihadronhit] - NDLAr_OnAxis_offset[1] << "\n";
-                  myfile << "ND_LAr_dtctr_pos: " << ND_LAr_dtctr_pos << ", ND_LAr_vtx_pos: " << ND_LAr_vtx_pos << ", ThrowDepsZ at ithrow" << ithrow << ", at ihadronhit: " << ihadronhit << ", is: " << ThrowDepsZ[ithrow][ihadronhit] - NDLAr_OnAxis_offset[2] << "\n\n";
-                }
-              }
-              TString energy_name = Form("VetoE_%.2f_MeV, TotE_%.2f_MeV", CurrentThrowVetoE->at(ithrow), CurrentThrowTotE->at(ithrow));
 
+                if(
+                  ( ThrowDepsX[ithrow][ihadronhit] - offset_X                      < NDActiveVol_min[0] ) ||
+                  ( ThrowDepsY[ithrow][ihadronhit] - NDLAr_OnAxis_offset[1]        < NDActiveVol_min[1] ) ||
+                  ( ThrowDepsZ[ithrow][ihadronhit] - NDLAr_OnAxis_offset[2]        < NDActiveVol_min[2] ) ||
+                  ( ThrowDepsX[ithrow][ihadronhit] - offset_X                      > NDActiveVol_max[0] ) ||
+                  ( ThrowDepsY[ithrow][ihadronhit] - NDLAr_OnAxis_offset[1]        > NDActiveVol_max[1] ) ||
+                  ( ThrowDepsZ[ithrow][ihadronhit] - NDLAr_OnAxis_offset[2]        > NDActiveVol_max[2] )
+                ){
+                  CurrentThrowoutEnergyND += HadronHitEdeps->at(ihadronhit);
+                }
+                else if ( ( ThrowDepsX[ithrow][ihadronhit]-offset_X                      > NDActiveVol_min[0]         && ThrowDepsX[ithrow][ihadronhit]-offset_X                      < NDActiveVol_min[0] + vSize ) ||
+                     ( ThrowDepsY[ithrow][ihadronhit]-NDLAr_OnAxis_offset[1]        > NDActiveVol_min[1]         && ThrowDepsY[ithrow][ihadronhit]-NDLAr_OnAxis_offset[1]        < NDActiveVol_min[1] + vSize ) ||
+                     ( ThrowDepsZ[ithrow][ihadronhit]-NDLAr_OnAxis_offset[2]        > NDActiveVol_min[2]         && ThrowDepsZ[ithrow][ihadronhit]-NDLAr_OnAxis_offset[2]        < NDActiveVol_min[2] + vSize ) ||
+                     ( ThrowDepsX[ithrow][ihadronhit]-offset_X                      > NDActiveVol_max[0] - vSize && ThrowDepsX[ithrow][ihadronhit]-offset_X                      < NDActiveVol_max[0] ) ||
+                     ( ThrowDepsY[ithrow][ihadronhit]-NDLAr_OnAxis_offset[1]        > NDActiveVol_max[1] - vSize && ThrowDepsY[ithrow][ihadronhit]-NDLAr_OnAxis_offset[1]        < NDActiveVol_max[1] ) ||
+                     ( ThrowDepsZ[ithrow][ihadronhit]-NDLAr_OnAxis_offset[2]        > NDActiveVol_max[2] - vSize && ThrowDepsZ[ithrow][ihadronhit]-NDLAr_OnAxis_offset[2]        < NDActiveVol_max[2] )
+                   ){
+                     CurrentThrowvetoEnergyND += HadronHitEdeps->at(ihadronhit);
+                } // end if hadron deposit in FD veto region
+
+              }
+              // find out the fraction
+              if(CurrentThrowvetoEnergyND<30&&CurrentThrowoutEnergyND>30)
+              {
+                throw_couter++;
+                // cout << " ithrow: " << ithrow << ", throw_couter: " << throw_couter << endl;
+              }
+
+              TString energy_name = Form("VetoE_%.2f_MeV, OutE_%.2f_MeV, TotE_%.2f_MeV", CurrentThrowvetoEnergyND, CurrentThrowoutEnergyND, CurrentThrowTotE->at(ithrow));
               TString c_hadronhit_name = Form("c_hadronhit_event_%d_OffAxis_%d_cm_LAr_%d_cm_throw_%d", i_iwritten,i_ND_LAr_dtctr_pos,i_ND_LAr_vtx_pos,ithrow);
               TString c_hadronhit_title = Form("hadronhit event_%d_OffAxis_%d_cm_LAr_%d_cm_throw_%d", i_iwritten,i_ND_LAr_dtctr_pos,i_ND_LAr_vtx_pos,ithrow);
               c_hadronhit[n_plot] = new TCanvas(c_hadronhit_name, c_hadronhit_title, 0,53,995,597);
@@ -477,6 +530,7 @@ void ReadHadronHitNtuple_ND()
               zx_box2->SetLineWidth(2);
               zx_box2->SetFillStyle(0);
               zx_box2->Draw();
+              // Draw Veto E and Tot E
               TLatex xz_text(-50,400,energy_name);
               xz_text.DrawClone();
 
@@ -498,6 +552,7 @@ void ReadHadronHitNtuple_ND()
               yz_box2->SetLineWidth(2);
               yz_box2->SetFillStyle(0);
               yz_box2->Draw();
+              // Draw Veto E and Tot E
               TLatex yz_text(-50,400,energy_name);
               yz_text.DrawClone();
 
@@ -505,42 +560,40 @@ void ReadHadronHitNtuple_ND()
               gPad->Modified();
               gSystem->ProcessEvents();
 
-              // outFile->cd("hadron hits");
-              // c_hadronhit[n_plot]->Write();
-              c_hadronhit[n_plot]->SaveAs( TString::Format("HadronHitPlots/c_event_%d_hadronhit_%d.pdf",iwritten, n_plot ) );
-              // c_hadronhit[n_plot]->Close();
+              c_hadronhit[n_plot]->SaveAs( TString::Format("HadronHitPlots_ND/c_event_%d_hadronhit_%d_throw_%d.pdf",iwritten, n_plot,ithrow ) );
 
-            }
+            }// end throw
             i_n_plot++;
-          }
-        }
-      }
-    }
+            cout << "i_iwritten: " << i_iwritten << ", i_ND_LAr_vtx_pos: " << i_ND_LAr_vtx_pos << ", fraction: "<< throw_couter*1.0/50 << endl;
+          }// end vtx selection
+        }//end ientry
+      }//end vtx pos inside LAr
+    }//end LAr pos
+  }//end iwritten
 
-
-  } // end iwritten_vec
-
+  // delete all canvas
   delete[] h_hadronhit_xy;
   delete[] h_hadronhit_zx;
   delete[] h_hadronhit_zy;
   delete[] c_hadronhit;
-  delete[] h_offaxis_hadronhit_zy;
-  delete[] h_offaxis_hadronhit_zx;
-  delete[] h_offaxis_hadronhit_xy;
-  delete[] c_offaxis_hadronhit;
-
-  myfile.close();
-  // outFile->Close();
-} // end ReadNtuple
-
+}
+// end ND ReadHadronHitNtuple
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Draw FD hadronic hits plot
 void ReadHadronHitNtuple_FD()
 {
   gROOT->Reset();
 
   // Input FDroot file
-  TString FileIn = "/dune/app/users/weishi/DebugFDEdep/srcs/myntuples/myntuples/MyEnergyAnalysis/myntuple.root";
-  // TString FileIn = "/pnfs/dune/persistent/users/flynnguo/myFDntuples/myntuple_44271498_GENIE.root";
+  // TString FileIn = "/dune/app/users/weishi/DebugFDEdep/srcs/myntuples/myntuples/MyEnergyAnalysis/myntuple.root"; // one file test
+  TString FileIn = "/pnfs/dune/persistent/users/flynnguo/myFDntuples/myntuple_62775806/myntuple_62775806_2164.root";
 
   TChain *t = new TChain("MyEnergyAnalysis/MyTree");
   t->Add(FileIn.Data());
@@ -713,31 +766,35 @@ void ReadHadronHitNtuple_FD()
 
   // Print out the data
   ofstream myfile;
-   myfile.open ("Output_FD_HadronhitCheck_test.txt");
+   myfile.open ("Output_FD_HadronhitCheck_FDGeoEff_2293930_985.txt");
 
 
   // create histograms
   for ( int ientry = 0; ientry < nentries; ientry++ )
+  // for ( int ientry = 0; ientry < 300; ientry++ )
   {
     t->GetEntry(ientry);
     if ( FD_Sim_nMu == 0 || FD_Sim_n_hadronic_Edep_b == 0 ) continue;
     if ( FD_CCNC_truth == 1) continue;   // only use CC events
     if ( abs(FD_neuPDG) != 14 ) continue;       // only use muon neu
-
+    cout << "hist: " << ientry << endl;
 
     TString h_hadronhit_xy_name = Form("hadronhitXY_event_%d", ientry);
+    // TString h_hadronhit_xy_name = Form(" ");
     h_hadronhit_xy[ientry] = new TH2F(h_hadronhit_xy_name,h_hadronhit_xy_name,200,-500,500,200,-800,800);
     h_hadronhit_xy[ientry]->GetXaxis()->SetTitle("X [cm]");
     h_hadronhit_xy[ientry]->GetYaxis()->SetTitle("Y [cm]");
     h_hadronhit_xy[ientry]->GetZaxis()->SetTitle("HadronHitEdeps [MeV]");
 
     TString h_hadronhit_zx_name = Form("hadronhitZX_event_%d", ientry);
+    // TString h_hadronhit_zx_name = Form(" ");
     h_hadronhit_zx[ientry] = new TH2F(h_hadronhit_zx_name,h_hadronhit_zx_name,200,-100,1500,200,-500,500);
     h_hadronhit_zx[ientry]->GetXaxis()->SetTitle("Z [cm]");
     h_hadronhit_zx[ientry]->GetYaxis()->SetTitle("X [cm]");
     h_hadronhit_zx[ientry]->GetZaxis()->SetTitle("HadronHitEdeps [MeV]");
 
     TString h_hadronhit_zy_name = Form("hadronhitZY_event_%d", ientry);
+    // TString h_hadronhit_zy_name = Form(" ");
     h_hadronhit_zy[ientry] = new TH2F(h_hadronhit_zy_name,h_hadronhit_zy_name,200,-100,1500,200,-800,800);
     h_hadronhit_zy[ientry]->GetXaxis()->SetTitle("Z [cm]");
     h_hadronhit_zy[ientry]->GetYaxis()->SetTitle("Y [cm]");
@@ -748,12 +805,13 @@ void ReadHadronHitNtuple_FD()
   // fill events
 
   for ( int ientry = 0; ientry < nentries; ientry++ )
+  // for ( int ientry = 0; ientry < 300; ientry++ )
   {
     t->GetEntry(ientry);
     if ( FD_Sim_nMu == 0 || FD_Sim_n_hadronic_Edep_b == 0 ) continue;
     if ( FD_CCNC_truth == 1) continue;   // only use CC events
     if ( abs(FD_neuPDG) != 14 ) continue;       // only use muon neu
-
+    cout << "fill: " << ientry << endl;
 
     if(myfileVerbose)
     {
@@ -780,13 +838,35 @@ void ReadHadronHitNtuple_FD()
 
   // draw histograms
   for ( int ientry = 0; ientry < nentries; ientry++ )
+  // for ( int ientry = 0; ientry < 300; ientry++ )
   {
+    // if ( totEnergyFD!=232.715 || totEnergyFD!=1948.59 || totEnergyFD!=290.204 || totEnergyFD!=137.90 || totEnergyFD!=873.23 || totEnergyFD!=2913.36 || totEnergyFD!=167.39 || totEnergyFD!=539.82 || totEnergyFD!=1481.93) continue;
+    if ( ientry!=14&& ientry!=17 && ientry!=25 && ientry!=26 && ientry!=33 && ientry!=38 && ientry!=42 && ientry!=59 && ientry!=64 ) continue;
+
     t->GetEntry(ientry);
     if ( FD_Sim_nMu == 0 || FD_Sim_n_hadronic_Edep_b == 0 ) continue;
     if ( FD_CCNC_truth == 1) continue;   // only use CC events
     if ( abs(FD_neuPDG) != 14 ) continue;       // only use muon neu
 
-
+    double vetoEnergyFD = 0.;
+    double totEnergyFD = 0.;
+    for(Int_t ihadronhit =0; ihadronhit < FD_Sim_n_hadronic_Edep_b; ihadronhit++)
+    {
+      totEnergyFD += FD_Sim_hadronic_hit_Edep_b2->at(ihadronhit);
+      // Veto region size: 30 cm from the active volume
+      if ( ( FD_Sim_hadronic_hit_x_b->at(ihadronhit) > FDActiveVol_min[0] && FD_Sim_hadronic_hit_x_b->at(ihadronhit) < FDActiveVol_min[0] + 30 ) ||
+           ( FD_Sim_hadronic_hit_y_b->at(ihadronhit) > FDActiveVol_min[1] && FD_Sim_hadronic_hit_y_b->at(ihadronhit) < FDActiveVol_min[1] + 30 ) ||
+           ( FD_Sim_hadronic_hit_z_b->at(ihadronhit) > FDActiveVol_min[2] && FD_Sim_hadronic_hit_z_b->at(ihadronhit) < FDActiveVol_min[2] + 30 ) ||
+           ( FD_Sim_hadronic_hit_x_b->at(ihadronhit) > FDActiveVol_max[0] - 30 && FD_Sim_hadronic_hit_x_b->at(ihadronhit) < FDActiveVol_max[0] ) ||
+           ( FD_Sim_hadronic_hit_y_b->at(ihadronhit) > FDActiveVol_max[1] - 30 && FD_Sim_hadronic_hit_y_b->at(ihadronhit) < FDActiveVol_max[1] ) ||
+           ( FD_Sim_hadronic_hit_z_b->at(ihadronhit) > FDActiveVol_max[2] - 30 && FD_Sim_hadronic_hit_z_b->at(ihadronhit) < FDActiveVol_max[2] )
+         ){
+           vetoEnergyFD += FD_Sim_hadronic_hit_Edep_b2->at(ihadronhit);
+      } // end if hadron deposit in FD veto region
+    } // end ihadronhit
+    cout << "ientry: " << ientry << ", E total: " << totEnergyFD << "\n\n";
+    myfile << "ientry: " << ientry<< ", E total: " << totEnergyFD  << ", veto E total: " << vetoEnergyFD << "\n\n";
+    TString energy_name = Form("VetoE_%.2f_MeV, TotE_%.2f_MeV", vetoEnergyFD, totEnergyFD);
     TString c_hadronhit_name = Form("c_hadronhit_event_%d", ientry);
     TString c_hadronhit_title = Form("hadronhit event_%d", ientry);
     c_hadronhit[ientry] = new TCanvas(c_hadronhit_name, c_hadronhit_title, 0,53,995,597);
@@ -815,6 +895,8 @@ void ReadHadronHitNtuple_FD()
     xy_box2->SetLineWidth(1);
     xy_box2->SetFillStyle(0);
     xy_box2->Draw();
+    TLatex xy_text(-400,640,energy_name);
+    xy_text.DrawClone();
 
     // zx plot
     c_hadronhit[ientry]->cd(2);
@@ -838,6 +920,8 @@ void ReadHadronHitNtuple_FD()
     zx_box2->SetLineWidth(1);
     zx_box2->SetFillStyle(0);
     zx_box2->Draw();
+    TLatex zx_text(0,400,energy_name);
+    zx_text.DrawClone();
 
     // yz plot
     c_hadronhit[ientry]->cd(3);
@@ -858,112 +942,104 @@ void ReadHadronHitNtuple_FD()
     yz_box2->SetLineWidth(1);
     yz_box2->SetFillStyle(0);
     yz_box2->Draw();
+    TLatex yz_text(0,640,energy_name);
+    yz_text.DrawClone();
 
-    double vetoEnergyFD = 0.;
-    for(Int_t ihadronhit =0; ihadronhit < FD_Sim_n_hadronic_Edep_b; ihadronhit++)
-    {
-      // Veto region size: 30 cm from the active volume
-      if ( ( FD_Sim_hadronic_hit_x_b->at(ihadronhit) > FDActiveVol_min[0] && FD_Sim_hadronic_hit_x_b->at(ihadronhit) < FDActiveVol_min[0] + 30 ) ||
-           ( FD_Sim_hadronic_hit_y_b->at(ihadronhit) > FDActiveVol_min[1] && FD_Sim_hadronic_hit_y_b->at(ihadronhit) < FDActiveVol_min[1] + 30 ) ||
-           ( FD_Sim_hadronic_hit_z_b->at(ihadronhit) > FDActiveVol_min[2] && FD_Sim_hadronic_hit_z_b->at(ihadronhit) < FDActiveVol_min[2] + 30 ) ||
-           ( FD_Sim_hadronic_hit_x_b->at(ihadronhit) > FDActiveVol_max[0] - 30 && FD_Sim_hadronic_hit_x_b->at(ihadronhit) < FDActiveVol_max[0] ) ||
-           ( FD_Sim_hadronic_hit_y_b->at(ihadronhit) > FDActiveVol_max[1] - 30 && FD_Sim_hadronic_hit_y_b->at(ihadronhit) < FDActiveVol_max[1] ) ||
-           ( FD_Sim_hadronic_hit_z_b->at(ihadronhit) > FDActiveVol_max[2] - 30 && FD_Sim_hadronic_hit_z_b->at(ihadronhit) < FDActiveVol_max[2] )
-         ){
-           vetoEnergyFD += FD_Sim_hadronic_hit_Edep_b2->at(ihadronhit);
-      } // end if hadron deposit in FD veto region
-    } // end ihadronhit
-    myfile << "ientry: " << ientry << ", veto E total: " << vetoEnergyFD << "\n\n";
+
 
     // text plot
-    c_hadronhit[ientry]->cd(4);
-    gPad->DrawFrame(0.,0.,60.,10.);
-    TString line1 = Form("VetoE_%.4f_MeV, Angleb/wLep&Nu_%.4f_Radians", vetoEnergyFD, FD_LepNuAngle);
-    TString line2 = Form("GenNumuE_%.4f_GeV", FD_Gen_numu_E );
-    TLatex text1(1,9.5,line1);
-    TLatex text2(1,8.9,line2);
-    text1.SetTextSize(0.04);
-    text2.SetTextSize(0.04);
-    text1.DrawClone();
-    text2.DrawClone();
+    if (true)
+    {
+      c_hadronhit[ientry]->cd(4);
+      gPad->DrawFrame(0.,0.,60.,10.);
+      TString line1 = Form("VetoE_%.4f_MeV, Angleb/wLep&Nu_%.4f_Radians", vetoEnergyFD, FD_LepNuAngle);
+      TString line2 = Form("GenNumuE_%.4f_GeV", FD_Gen_numu_E );
+      TLatex text1(1,9.5,line1);
+      TLatex text2(1,8.9,line2);
+      text1.SetTextSize(0.04);
+      text2.SetTextSize(0.04);
+      text1.DrawClone();
+      text2.DrawClone();
 
-    TString line3 = Form("FD_True_LepE_%.4f_GeV, FD_True_HadE_%.4f_GeV, FD_True_E_%.4f_GeV", FD_True_LepE, FD_True_HadE, FD_True_LepE+FD_True_HadE);
-    TLatex text3(1,8.3,line3);
-    text3.SetTextSize(0.04);
-    text3.DrawClone();
+      TString line3 = Form("FD_True_LepE_%.4f_GeV, FD_True_HadE_%.4f_GeV, FD_True_E_%.4f_GeV", FD_True_LepE, FD_True_HadE, FD_True_LepE+FD_True_HadE);
+      TLatex text3(1,8.3,line3);
+      text3.SetTextSize(0.04);
+      text3.DrawClone();
 
-    TString line4 = Form("FD_BindingE_%.4f_GeV", FD_Gen_numu_E - (FD_True_LepE+FD_True_HadE) );
-    TLatex text4(1,7.7,line4);
-    text4.SetTextSize(0.04);
-    text4.DrawClone();
+      TString line4 = Form("FD_BindingE_%.4f_GeV", FD_Gen_numu_E - (FD_True_LepE+FD_True_HadE) );
+      TLatex text4(1,7.7,line4);
+      text4.SetTextSize(0.04);
+      text4.DrawClone();
 
-    // TString line4 = Form("FD_Vis_LepE_%.2f_GeV, FD_Vis_HadE_%.2f_GeV, FD_Vis_E_%.2f_GeV", FD_Vis_LepE, FD_Vis_HadE, FD_Vis_HadE+FD_Vis_LepE );
-    // TLatex text4(1,7.7,line4);
-    // text4.SetTextSize(0.04);
-    // text4.DrawClone();
+      // TString line4 = Form("FD_Vis_LepE_%.2f_GeV, FD_Vis_HadE_%.2f_GeV, FD_Vis_E_%.2f_GeV", FD_Vis_LepE, FD_Vis_HadE, FD_Vis_HadE+FD_Vis_LepE );
+      // TLatex text4(1,7.7,line4);
+      // text4.SetTextSize(0.04);
+      // text4.DrawClone();
 
-    TString line5 = Form("FD_#ofNeutron_%.2d, FD_KEofNeutron_%.4f_GeV", FD_nN, FD_eN );
-    TLatex text5(1,7.1,line5);
-    text5.SetTextSize(0.04);
-    text5.DrawClone();
+      TString line5 = Form("FD_#ofNeutron_%.2d, FD_KEofNeutron_%.4f_GeV", FD_nN, FD_eN );
+      TLatex text5(1,7.1,line5);
+      text5.SetTextSize(0.04);
+      text5.DrawClone();
 
-    TString line6 = Form("FD_DepMuE_%.4f_MeV, FD_DepHadE_%.4f_MeV, FD_TotDepE_%.4f_MeV", FD_Sim_mu_Edep_b2, FD_Sim_hadronic_Edep_b2, FD_Sim_hadronic_Edep_b2+FD_Sim_mu_Edep_b2);
-    TLatex text6(1,6.5,line6);
-    text6.SetTextSize(0.04);
-    text6.DrawClone();
+      TString line6 = Form("FD_DepMuE_%.4f_MeV, FD_DepHadE_%.4f_MeV, FD_TotDepE_%.4f_MeV", FD_Sim_mu_Edep_b2, FD_Sim_hadronic_Edep_b2, FD_Sim_hadronic_Edep_b2+FD_Sim_mu_Edep_b2);
+      TLatex text6(1,6.5,line6);
+      text6.SetTextSize(0.04);
+      text6.DrawClone();
 
-    /*
-    TString line61 = Form("FD_NCP_DepMuE_%.4f_MeV, FD_NCP_DepHadE_%.4f_MeV", FD_Sim_mu_Edep_NonCollectionPlane_b2, FD_Sim_hadronic_Edep_NonCollectionPlane_b2);
-    TLatex text61(1,5.9,line61);
-    text61.SetTextSize(0.04);
-    text61.DrawClone();
-
-
-    TString line62 = Form("FD_NCP_TotDepE_%.4f_MeV", FD_Sim_mu_Edep_NonCollectionPlane_b2+FD_Sim_hadronic_Edep_NonCollectionPlane_b2);
-    TLatex text62(1,5.3,line62);
-    text62.SetTextSize(0.04);
-    text62.DrawClone();
+      /*
+      TString line61 = Form("FD_NCP_DepMuE_%.4f_MeV, FD_NCP_DepHadE_%.4f_MeV", FD_Sim_mu_Edep_NonCollectionPlane_b2, FD_Sim_hadronic_Edep_NonCollectionPlane_b2);
+      TLatex text61(1,5.9,line61);
+      text61.SetTextSize(0.04);
+      text61.DrawClone();
 
 
-    TString line63 = Form("FD_DepMuE_debug_%.4f_MeV, FD_DepHadE_debug_%.4f_MeV", FD_Sim_mu_Edep_b2_debug, FD_Sim_hadronic_Edep_b2_debug);
-    TLatex text63(1,4.7,line63);
-    text63.SetTextSize(0.04);
-    text63.DrawClone();
-
-    TString line64 = Form("FD_DepTotE_debug_%.4f_MeV", FD_Sim_mu_Edep_b2_debug+FD_Sim_hadronic_Edep_b2_debug);
-    TLatex text64(1,4.1,line64);
-    text64.SetTextSize(0.04);
-    text64.DrawClone();
+      TString line62 = Form("FD_NCP_TotDepE_%.4f_MeV", FD_Sim_mu_Edep_NonCollectionPlane_b2+FD_Sim_hadronic_Edep_NonCollectionPlane_b2);
+      TLatex text62(1,5.3,line62);
+      text62.SetTextSize(0.04);
+      text62.DrawClone();
 
 
-    // TString line7 = Form("FD_MuonMass_105.66_MeV, FD_DepMuE+FD_MuonMass: %.2f_MeV", FD_Sim_mu_Edep_b2+105.66);
-    // TLatex text7(1,5.9,line7);
-    // text7.SetTextSize(0.04);
-    // text7.DrawClone();
+      TString line63 = Form("FD_DepMuE_debug_%.4f_MeV, FD_DepHadE_debug_%.4f_MeV", FD_Sim_mu_Edep_b2_debug, FD_Sim_hadronic_Edep_b2_debug);
+      TLatex text63(1,4.7,line63);
+      text63.SetTextSize(0.04);
+      text63.DrawClone();
 
-    TString line71 = Form("FD_True_LepE - (FD_DepMuE+FD_MuonMass): %.2f_MeV", FD_True_LepE*1000-(FD_Sim_mu_Edep_b2+105.66));
-    TLatex text71(1,3.5,line71);
-    text71.SetTextSize(0.04);
-    text71.DrawClone();
+      TString line64 = Form("FD_DepTotE_debug_%.4f_MeV", FD_Sim_mu_Edep_b2_debug+FD_Sim_hadronic_Edep_b2_debug);
+      TLatex text64(1,4.1,line64);
+      text64.SetTextSize(0.04);
+      text64.DrawClone();
+      */
 
-    TString line8 = Form("FD_SimMuE_%.2f_GeV, FD_SimHadE_%.2f_GeV, FD_SimE_sum_%.2f_GeV", FD_Sim_LepE, FD_Sim_HadE, FD_Sim_HadE+FD_Sim_LepE);
-    TLatex text8(1,2.9,line8);
-    text8.SetTextSize(0.04);
-    text8.DrawClone();*/
+      // TString line7 = Form("FD_MuonMass_105.66_MeV, FD_DepMuE+FD_MuonMass: %.2f_MeV", FD_Sim_mu_Edep_b2+105.66);
+      // TLatex text7(1,5.9,line7);
+      // text7.SetTextSize(0.04);
+      // text7.DrawClone();
 
-    TString line9 = Form("FD_SimMu_Start: Vx_%.2f_cm, Vy_%.2f_cm, Vz_%.2f_cm", FD_Sim_mu_start_vx, FD_Sim_mu_start_vy, FD_Sim_mu_start_vz);
-    TLatex text9(1,0.7,line9);
-    text9.SetTextSize(0.04);
-    text9.DrawClone();
+      TString line71 = Form("FD_True_LepE - (FD_DepMuE+FD_MuonMass): %.2f_MeV", FD_True_LepE*1000-(FD_Sim_mu_Edep_b2+105.66));
+      TLatex text71(1,3.5,line71);
+      text71.SetTextSize(0.04);
+      text71.DrawClone();
 
-    TString line10 = Form("FD_SimMu_End: Vx_%.2f_cm, Vy_%.2f_cm, Vz_%.2f_cm", FD_Sim_mu_end_vx, FD_Sim_mu_end_vy, FD_Sim_mu_end_vz);
-    TLatex text10(1,0.1,line10);
-    text10.SetTextSize(0.04);
-    text10.DrawClone();
+      TString line8 = Form("FD_SimMuE_%.2f_GeV, FD_SimHadE_%.2f_GeV, FD_SimE_sum_%.2f_GeV", FD_Sim_LepE, FD_Sim_HadE, FD_Sim_HadE+FD_Sim_LepE);
+      TLatex text8(1,2.9,line8);
+      text8.SetTextSize(0.04);
+      text8.DrawClone();
+
+
+      TString line9 = Form("FD_SimMu_Start: Vx_%.2f_cm, Vy_%.2f_cm, Vz_%.2f_cm", FD_Sim_mu_start_vx, FD_Sim_mu_start_vy, FD_Sim_mu_start_vz);
+      TLatex text9(1,1.3,line9);
+      text9.SetTextSize(0.04);
+      text9.DrawClone();
+
+      TString line10 = Form("FD_SimMu_End: Vx_%.2f_cm, Vy_%.2f_cm, Vz_%.2f_cm", FD_Sim_mu_end_vx, FD_Sim_mu_end_vy, FD_Sim_mu_end_vz);
+      TLatex text10(1,0.7,line10);
+      text10.SetTextSize(0.04);
+      text10.DrawClone();
+    }
 
     // Save true information
-    if(ientry>-1)
-    {
+    // if(ientry>-1)
+    // {
       for (int p = 0; p < FD_P_num; p++)
       {
         myfile << "ientry: " << ientry << ", FD_P_TrackID: " << FD_P_TrackID->at(p) << "\n";
@@ -998,7 +1074,7 @@ void ReadHadronHitNtuple_FD()
         myfile << "SimP_Mass: " << FD_SimP_M_vec->at(i) << "\n";
         myfile << "SimP_Ek: " << FD_SimP_Ek_vec->at(i) << "\n\n";
       }
-    }
+    // }
 
     //
     gPad->Update();
@@ -1014,4 +1090,4 @@ void ReadHadronHitNtuple_FD()
   delete[] c_hadronhit;
 
   myfile.close();
-}
+} // end FD ReadHadronHitNtuple
