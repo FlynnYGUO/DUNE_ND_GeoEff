@@ -521,7 +521,7 @@ int main(int argc, char** argv)
   ThrowsFD->Branch("throwRot",  &throwRot);
 
   // Mean neutrino production point (beam coordinate) on z axis as a function of ND off-axis position
-  TGraph* gDecayZ = new TGraph(14, OffAxisPoints, meanPDPZ);
+  TGraph* gDecayZ = new TGraph(28, OffAxisPoints, meanPDPZ);
   //
   //------------------------------------------------------------------------------
   //------------------------------------------------------------------------------
