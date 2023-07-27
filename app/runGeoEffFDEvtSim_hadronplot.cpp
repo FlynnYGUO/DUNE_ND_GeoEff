@@ -469,7 +469,7 @@ int main(int argc, char** argv)
   ThrowsFD->Branch("throwRot",  &throwRot);
 
   // Mean neutrino production point (beam coordinate) on z axis as a function of ND off-axis position
-  TGraph* gDecayZ = new TGraph(28, OffAxisPoints, meanPDPZ);
+  TGraph* gDecayZ = new TGraph(27, OffAxisPoints, meanPDPZ);
   //
   //------------------------------------------------------------------------------
   //------------------------------------------------------------------------------
@@ -804,7 +804,7 @@ int main(int argc, char** argv)
         vtx_vx_counter++;
 
         // Interpolate event neutrino production point (beam coordinate)
-        decayZbeamCoord = gDecayZ->Eval( i_ND_off_axis_pos + i_vtx_vx - detRefBeamCoord[0] );
+        decayZbeamCoord = gDecayZ->Eval( (i_ND_off_axis_pos + i_vtx_vx)*0.01 - detRefBeamCoord[0] );
 
         // Calculate neutrino production point in detector coordinate
         decayYdetCoord = beamRefDetCoord[1] - detRefBeamCoord[1]*cos(beamLineRotation) + ( decayZbeamCoord - detRefBeamCoord[2] )*sin(beamLineRotation);
@@ -1016,7 +1016,7 @@ int main(int argc, char** argv)
         // Get coordinates of hadron hits after random throws
 
           // for (unsigned int ithrow = 0; ithrow < N_throws; ithrow++ )
-          for (unsigned int ithrow = 4072; ithrow < 4083; ithrow++ )
+          for (unsigned int ithrow = 0; ithrow < 9; ithrow++ )
           {
             CurrentThrowDepsX.emplace_back(eff->getCurrentThrowDepsX(ithrow));
             CurrentThrowDepsY.emplace_back(eff->getCurrentThrowDepsY(ithrow));
@@ -1189,7 +1189,7 @@ int main(int argc, char** argv)
   //------------------------------------------------------------------------------
   //
   // Write trees
-  TFile * outFile = new TFile("Output_FDGeoEff_2293930_985.root", "RECREATE");
+  TFile * outFile = new TFile("Output_FDGeoEff_2293930_80.root", "RECREATE");
   ThrowsFD->Write();
   effTreeFD->Write();
   effValues->Write();
