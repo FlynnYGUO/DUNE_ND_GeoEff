@@ -395,7 +395,7 @@ std::vector< std::vector< std::vector< uint64_t > > > geoEff::getHadronContainme
   // Check if event is contained by any of the existing conditions
   if (ignore_uncontained) {
     int origContained = 0;
-    std::vector< std::vector< bool > > vecOrigContained = getHadronContainmentOrigin();
+    std::vector< std::vector< bool > > vecOrigContained = getHadronContainmentOrigin_FD_GEC();
     for (unsigned int i = 0; i < vetoSize.size(); i++){
       for (unsigned int j = 0; j < vetoEnergy.size(); j++){
 	if (vecOrigContained[i][j]) origContained++;
