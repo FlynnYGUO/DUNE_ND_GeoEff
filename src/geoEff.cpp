@@ -379,7 +379,52 @@ std::vector< std::vector< std::vector< uint64_t > > > geoEff::getHadronContainme
 
   return hadronContainment;
 }
+// getHadronContainmentThrows for FD GEC
+std::vector< std::vector< std::vector< uint64_t > > > geoEff::getHadronContainmentThrow_FD_GEC(bool ignore_uncontained){
 
+  // Figure out how many multiples of 64 bits needed to store output
+  int n_longs = N_THROWS / 64;
+  if (N_THROWS % 64) n_longs++;
+
+  // Pass/fail for each set of vetoSize and vetoEnergy
+  std::vector< std::vector< std::vector< uint64_t > > > hadronContainment(vetoSize.size(), std::vector< std::vector< uint64_t > >(vetoEnergy.size(), std::vector < uint64_t >(n_longs, 0)));
+
+  // Set the Eigen map
+  Eigen::Map<Eigen::Matrix3Xf,0,Eigen::OuterStride<> > hitSegPosOrig(hitSegPoss.data(),3,hitSegPoss.size()/3,Eigen::OuterStride<>(3));
+
+  // Check if event is contained by any of the existing conditions
+  if (ignore_uncontained) {
+    int origContained = 0;
+    std::vector< std::vector< bool > > vecOrigContained = getHadronContainmentOrigin();
+    for (unsigned int i = 0; i < vetoSize.size(); i++){
+      for (unsigned int j = 0; j < vetoEnergy.size(); j++){
+	if (vecOrigContained[i][j]) origContained++;
+      }
+    }
+
+    // If not, then return
+    if (origContained == 0) return hadronContainment;
+  }
+
+  std::vector< Eigen::Transform<float,3,Eigen::Affine> > transforms = getTransforms();
+  // Else, loop through set of rotation translations
+  for (unsigned int t = 0; t < N_THROWS; t++){
+    // Apply transformation to energy deposit positions
+    Eigen::Matrix3Xf transformedEdeps = transforms[t] * hitSegPosOrig;
+    // Loop through conditions
+    for (unsigned int i = 0; i < vetoSize.size(); i++){
+      for (unsigned int j = 0; j < vetoEnergy.size(); j++){
+        // Check containment and set bit
+        if (isContained_FD_GEC(transformedEdeps, hitSegEdeps, vetoSize[i], vetoEnergy[j]))
+        {
+	         hadronContainment[i][j][t/64] |= ((uint64_t)1)<<(t%64);
+	      }
+      }
+    }
+  }
+
+  return hadronContainment;
+}
 
 void geoEff::setSeed(int seed){
   prnGenerator = std::mt19937_64(seed);
@@ -400,7 +445,22 @@ std::vector< std::vector< bool > > geoEff::getHadronContainmentOrigin(){
 
   return hadronContainment;
 }
+// getHadronContainmentOrigin for FD GEC
+std::vector< std::vector< bool > > geoEff::getHadronContainmentOrigin_FD_GEC(){
+  // Initialize return vector
+  std::vector< std::vector< bool > > hadronContainment(vetoSize.size(), std::vector< bool >(vetoEnergy.size(), false));
 
+  // Set Eigen Map
+  Eigen::Map<Eigen::Matrix3Xf,0,Eigen::OuterStride<> > hitSegPosOrig(hitSegPoss.data(),3,hitSegPoss.size()/3,Eigen::OuterStride<>(3));
+
+  for (unsigned int i = 0; i < vetoSize.size(); i++){
+    for (unsigned int j = 0; j < vetoEnergy.size(); j++){
+      if (isContained_FD_GEC(hitSegPosOrig, hitSegEdeps, vetoSize[i], vetoEnergy[j])) hadronContainment[i][j] = true;
+    }
+  }
+
+  return hadronContainment;
+}
 void geoEff::setOffAxisOffsetX(float x){
   OffAxisOffset[0] = x;
 }
@@ -414,6 +474,31 @@ void geoEff::setOffAxisOffsetZ(float z){
 }
 
 bool geoEff::isContained( Eigen::Matrix3Xf hitSegments, std::vector<float> energyDeposits, float vSize, float vetoEnergyThreshold ){
+
+  float vetoEnergy = 0.;
+
+  for (unsigned int i = 0; i < energyDeposits.size(); i++){
+    for (int dim = 0; dim < 3; dim++){
+      // low
+      if ( (hitSegments(dim, i)-offset[dim] < active[dim][0]+vSize) and
+           (hitSegments(dim, i)-offset[dim] > active[dim][0]) ) {
+        vetoEnergy += energyDeposits[i];
+        break; // Only count each energy deposit once
+      }
+      // high
+      if ( (hitSegments(dim, i)-offset[dim] > active[dim][1]-vSize) and
+           (hitSegments(dim, i)-offset[dim] < active[dim][1]) ) {
+        vetoEnergy += energyDeposits[i];
+        break; // Only count each energy deposit once
+      }
+    }
+  }
+
+  return vetoEnergy < vetoEnergyThreshold;
+}
+
+// isContainde for FD GEC
+bool geoEff::isContained_FD_GEC( Eigen::Matrix3Xf hitSegments, std::vector<float> energyDeposits, float vSize, float vetoEnergyThreshold ){
 
   float vetoEnergy = 0.;
 
