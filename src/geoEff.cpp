@@ -380,7 +380,7 @@ std::vector< std::vector< std::vector< uint64_t > > > geoEff::getHadronContainme
   return hadronContainment;
 }
 // getHadronContainmentThrows for FD GEC
-std::vector< std::vector< std::vector< uint64_t > > > geoEff::getHadronContainmentThrow_FD_GEC(bool ignore_uncontained){
+std::vector< std::vector< std::vector< uint64_t > > > geoEff::getHadronContainmentThrows_FD_GEC(bool ignore_uncontained){
 
   // Figure out how many multiples of 64 bits needed to store output
   int n_longs = N_THROWS / 64;
