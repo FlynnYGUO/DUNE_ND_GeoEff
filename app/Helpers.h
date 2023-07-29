@@ -6,7 +6,7 @@
 #include "TSystemDirectory.h"
 
 bool verbose = false; // default to false, true for debugging, a lot of printouts
-bool myfileVerbose = false;
+bool myfileVerbose = false; // change to true if we need check data
 bool throwfileVerbose = false;
 bool hadronhitVerbose = false;
 bool ntupleVerbose = false;
@@ -44,7 +44,7 @@ double meanPDPZ[]       = {57.7352, 59.1433, 60.8336, 62.4821, 65.005, 67.5822, 
 double OffAxisPoints[]  = {-30.5,   -28,    -25.5,   -23,     -20.5,   -18,     -15.5,   -13,    -10.5,   -8,      -5.5,    -3,    -0.5,     0,       0.5,    3,     5.5,    8,      10.5,   13,     15.5,   18,     20.5,  23,     25.5,   28,     30.5};
 double NDLarPos_new1[]  = {0., -28.}; // unit meter
 double NDLarPos_new2[]  = {-1.75, -25.75}; // unit meter
-double ND_Lar_dtctr_pos_new_stepsize = 4; // unit meter
+double ND_Lar_dtctr_pos_new_stepsize = 14; // unit meter
 
 bool random_vtx_vx         = false; // Set to true will only use a random vtx x per event in runGeoEffFDEvtSim
 double ND_local_x_stepsize = 48.;   // unit cm, must be a positive number below 200
