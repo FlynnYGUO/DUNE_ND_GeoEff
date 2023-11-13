@@ -43,7 +43,7 @@ void Plot_E_vistrue() // /pnfs/dune/persistent/users/flynnguo/myFDntuples/myntup
   //
   // Read branch from input trees
   //
-  TString FileIn = "/pnfs/dune/scratch/users/flynnguo/FDGeoEffinND/FDGeoEff_526487_all.root";
+  TString FileIn = "/pnfs/dune/persistent/users/flynnguo/FDGeoEffinND/FDGeoEff_2811722/FDGeoEff_2811722_all.root";
   // TString FileIn = "/pnfs/dune/scratch/users/flynnguo/FDGeoEffinND/FDGeoEff_526487_998.root";
   TChain *effTreeND = new TChain("effTreeND");
   effTreeND->Add(FileIn.Data());
@@ -115,9 +115,9 @@ void Plot_E_vistrue() // /pnfs/dune/persistent/users/flynnguo/myFDntuples/myntup
   for ( int ientry = 0; ientry < nentries; ientry++ )
   {
       //15 off axis positions * 22 vtx positions,
-      // ientry = i*330-1; //only choose On axis events 308-329, ND_LAr_dtctr_pos=0cm
+      // ientry = i*(3*22)-1; //only choose On axis events 308-329, ND_LAr_dtctr_pos=0cm
       // ientry = (i-1)*330; //only choose Off axis events 0,1,...,  ND_LAr_dtctr_pos=-2800cm
-    effTreeND_ientry = ientry/330;
+    effTreeND_ientry = ientry/(3*22);
     // cout << "effTreeND_ientry: " << effTreeND_ientry << endl;
     effTreeND->GetEntry(effTreeND_ientry);
     effValues->GetEntry(ientry);
@@ -175,8 +175,8 @@ void Plot_E_vistrue() // /pnfs/dune/persistent/users/flynnguo/myFDntuples/myntup
     hist_ND_E_vis_true[plot_num]->SetStats(0);
     hist_ND_E_vis_true[plot_num]->Draw("HIST");
     TString hist_ND_E_vis_true_title = Form("On Axis = %d cm, %d cm < ND_LAr < %d cm", OffAxispos, Left_edge, Right_edge);
-    // hist_ND_E_vis_true[plot_num]->SetTitle(hist_ND_E_vis_true_title);
-    hist_ND_E_vis_true[plot_num]->SetTitle(" ");
+    hist_ND_E_vis_true[plot_num]->SetTitle(hist_ND_E_vis_true_title);
+    // hist_ND_E_vis_true[plot_num]->SetTitle(" ");
 
     hist_ND_E_vis_true[plot_num]->SetTitleSize(15);
     hist_ND_E_vis_true[plot_num]->SetTitleFont(43);
@@ -186,13 +186,13 @@ void Plot_E_vistrue() // /pnfs/dune/persistent/users/flynnguo/myFDntuples/myntup
     hist_ND_E_vis_true[plot_num]->GetYaxis()->SetTitleOffset(6);
     hist_ND_E_vis_true_eff_cut[plot_num]->Draw("SAME");
 
-    /*
+
     uppad_L[plot_num] = new TLegend(0.5, 0.5, 0.9, 0.9);
     uppad_L[plot_num]->SetTextSize(0.045);
     uppad_L[plot_num]->AddEntry(hist_ND_E_vis_true[plot_num],TString::Format("raw hist_E_vis_true"),"l");
     uppad_L[plot_num]->AddEntry(hist_ND_E_vis_true_eff_cut[plot_num],TString::Format("hist_E_vis_true w/ eff>0.1"),"l");
     uppad_L[plot_num]->Draw();
-    */
+
 
     c1->cd(plot_num+1);
 
@@ -237,7 +237,7 @@ void Plot_E_vistrue() // /pnfs/dune/persistent/users/flynnguo/myFDntuples/myntup
     gSystem->ProcessEvents();
   }
 
-  c1->SaveAs("E_vis_true_LowE.pdf");
+  c1->SaveAs("E_vis_true.pdf");
 
 
   // delete all hist variables

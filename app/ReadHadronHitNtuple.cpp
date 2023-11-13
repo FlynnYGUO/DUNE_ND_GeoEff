@@ -50,7 +50,7 @@ void ReadHadronHitNtuple_ND()
   gStyle->SetOptStat(0); // Remove Stat Box
 
   // Input FDroot file
-  TString FileIn = "/dune/app/users/flynnguo/NDEff/DUNE_ND_GeoEff/bin/Output_FDGeoEff_2293930_985.root";
+  TString FileIn = "/dune/app/users/flynnguo/NDEff/DUNE_ND_GeoEff/bin/Output_FDGeoEff_2293930_80.root";
   //
   // Read branch from input trees
   //
@@ -72,7 +72,6 @@ void ReadHadronHitNtuple_ND()
   vector<vector<float>> *CurrentThrowDepsX = 0; // Coordinates of hadron hits X after random throws
   vector<vector<float>> *CurrentThrowDepsY =0; // Coordinates of hadron hits Y after random throws
   vector<vector<float>> *CurrentThrowDepsZ = 0; // Coordinates of hadron hits Z after random throws
-  vector<float> *CurrentThrowVetoE = 0;
   vector<float> *CurrentThrowTotE = 0;
   vector<vector<float>> *ND_OffAxis_Sim_hadronic_hit_xyz=0; // coordinates of hadron hits before random throws
 
@@ -80,7 +79,6 @@ void ReadHadronHitNtuple_ND()
   t_effTree->SetBranchAddress("CurrentThrowDepsX",         &CurrentThrowDepsX);
   t_effTree->SetBranchAddress("CurrentThrowDepsY",         &CurrentThrowDepsY);
   t_effTree->SetBranchAddress("CurrentThrowDepsZ",         &CurrentThrowDepsZ);
-  t_effTree->SetBranchAddress("CurrentThrowVetoE",         &CurrentThrowVetoE);
   t_effTree->SetBranchAddress("CurrentThrowTotE",          &CurrentThrowTotE);
   t_effTree->SetBranchAddress("HadronHitEdeps",            &HadronHitEdeps);
   t_effTree->SetBranchAddress("ND_OffAxis_Sim_hadronic_hit_xyz",            &ND_OffAxis_Sim_hadronic_hit_xyz);
@@ -341,7 +339,7 @@ void ReadHadronHitNtuple_ND()
   for (Int_t i_iwritten : *iwritten_vec)
   {
     //choose specific iwrittenR
-    // if (i_iwritten != 7) continue;
+    if (i_iwritten != 2) continue;
     cout << "i_iwritten: " << i_iwritten << "\n";
 
     Int_t n_plot = 0;
@@ -411,7 +409,7 @@ void ReadHadronHitNtuple_ND()
             // for(Int_t ithrow = 0; ithrow < 15; ithrow++)
             // vector<int> common_v={ 19, 30, 33, 38 }; // can only pick throw smaller than 50
             // for (Int_t ithrow: common_v)
-            for (Int_t ithrow = 0; ithrow < 11; ithrow++ )
+            for (Int_t ithrow = 0; ithrow < 8; ithrow++ )
             {
               // cout << "ithrow: " << ithrow <<endl;
               // for all events
@@ -593,7 +591,7 @@ void ReadHadronHitNtuple_FD()
 
   // Input FDroot file
   // TString FileIn = "/dune/app/users/weishi/DebugFDEdep/srcs/myntuples/myntuples/MyEnergyAnalysis/myntuple.root"; // one file test
-  TString FileIn = "/pnfs/dune/persistent/users/flynnguo/myFDntuples/myntuple_62775806/myntuple_62775806_2164.root";
+  TString FileIn = "/pnfs/dune/persistent/users/flynnguo/myFDntuples/myntuple_62775806/myntuple_62775806_1104.root";
 
   TChain *t = new TChain("MyEnergyAnalysis/MyTree");
   t->Add(FileIn.Data());
@@ -766,7 +764,7 @@ void ReadHadronHitNtuple_FD()
 
   // Print out the data
   ofstream myfile;
-   myfile.open ("Output_FD_HadronhitCheck_FDGeoEff_2293930_985.txt");
+   myfile.open ("Output_FD_HadronhitCheck_FDGeoEff_2293930_80.txt");
 
 
   // create histograms
@@ -840,8 +838,8 @@ void ReadHadronHitNtuple_FD()
   for ( int ientry = 0; ientry < nentries; ientry++ )
   // for ( int ientry = 0; ientry < 300; ientry++ )
   {
-    // if ( totEnergyFD!=232.715 || totEnergyFD!=1948.59 || totEnergyFD!=290.204 || totEnergyFD!=137.90 || totEnergyFD!=873.23 || totEnergyFD!=2913.36 || totEnergyFD!=167.39 || totEnergyFD!=539.82 || totEnergyFD!=1481.93) continue;
-    if ( ientry!=14&& ientry!=17 && ientry!=25 && ientry!=26 && ientry!=33 && ientry!=38 && ientry!=42 && ientry!=59 && ientry!=64 ) continue;
+    // if ( ientry!=7&& ientry!=16 && ientry!=36 && ientry!=44 && ientry!=45 && ientry!=47 && ientry!=49 && ientry!=55 ) continue;
+
 
     t->GetEntry(ientry);
     if ( FD_Sim_nMu == 0 || FD_Sim_n_hadronic_Edep_b == 0 ) continue;
@@ -948,7 +946,7 @@ void ReadHadronHitNtuple_FD()
 
 
     // text plot
-    if (true)
+    if (false)
     {
       c_hadronhit[ientry]->cd(4);
       gPad->DrawFrame(0.,0.,60.,10.);

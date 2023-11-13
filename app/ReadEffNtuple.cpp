@@ -46,8 +46,9 @@ void ReadEffNtuple()
   gROOT->Reset();
 
   // Input FDroot file
-  // TString FileIn = "/dune/app/users/flynnguo/NDEff/DUNE_ND_GeoEff/bin/Output_FDGeoEff_hadron_526487_2521.root";
-  TString FileIn = "/pnfs/dune/scratch/users/flynnguo/FDGeoEffinND/FDGeoEff_2293930_985.root";
+  TString FileIn = "/pnfs/dune/scratch/users/flynnguo/FDGeoEffinND/FDGeoEff_2811722_879.root";
+  // TString FileIn = "/dune/app/users/flynnguo/NDEff/DUNE_ND_GeoEff/bin/Output_FDGeoEff.root";
+  // TString FileIn = "/pnfs/dune/scratch/users/flynnguo/FDGeoEffinND/FDGeoEff_2293930_80.root";
   //
   // Read branch from input trees
   //
@@ -245,15 +246,23 @@ void ReadEffNtuple()
 
 
       TString h_1dGeoEff_name = Form("ND_LAr_dtctr_pos_%d [cm]", i_ND_LAr_dtctr_pos);
+
       h_1dGeoEff[ND_LAr_dtctr_pos_counter] = new TGraph(ND_vtx_vx_vec_size, x_ND_LAr_vtx_pos, y_geoeff);
       // h_1dGeoEff[ND_LAr_dtctr_pos_counter]->SetMinimum(0);
       // h_1dGeoEff[ND_LAr_dtctr_pos_counter]->SetMaximum(1.1);
       h_1dGeoEff[ND_LAr_dtctr_pos_counter]->SetMarkerStyle(ND_LAr_dtctr_pos_counter+20);
-      h_1dGeoEff[ND_LAr_dtctr_pos_counter]->SetMarkerColor((ND_LAr_dtctr_pos_counter+2)/2);
+      // h_1dGeoEff[ND_LAr_dtctr_pos_counter]->SetMarkerColor((ND_LAr_dtctr_pos_counter+2)/2); // Use when ND_LAr pos > 10
+      h_1dGeoEff[ND_LAr_dtctr_pos_counter]->SetMarkerColor(ND_LAr_dtctr_pos_counter+1);
       mg->Add(h_1dGeoEff[ND_LAr_dtctr_pos_counter]);
-      leg->AddEntry(h_1dGeoEff[ND_LAr_dtctr_pos_counter], h_1dGeoEff_name, "p");
 
+      // only chose even number
+      // if( ND_LAr_dtctr_pos_counter % 2 == 0)
+      // {
+        mg->Add(h_1dGeoEff[ND_LAr_dtctr_pos_counter]);
+        leg->AddEntry(h_1dGeoEff[ND_LAr_dtctr_pos_counter], h_1dGeoEff_name, "p");
+      // }
       ND_LAr_dtctr_pos_counter++;
+      cout << "ND_LAr_dtctr_pos_counter: " << ND_LAr_dtctr_pos_counter << endl;
     }
 
     if(ND_OffAxis_effcounter>=10) iwritten_effcounter++;
@@ -265,6 +274,7 @@ void ReadEffNtuple()
     mg->Draw("apl");
     mg->GetXaxis()->SetTitle("ND_LAr_vtx_pos [cm]");
     mg->GetYaxis()->SetTitle("GeoEff");
+    // Comment out SetRangeUser if we need zoom in
     mg->GetYaxis()->SetRangeUser(0,1.05);
     leg->Draw();
     outFile->cd("1dGeoEff");
@@ -295,12 +305,13 @@ void ReadEffNtuple()
   outFile->Close();
 } // end ReadNtuple
 
+// Find out throws which caused dip in the geoeff
 void ThrowPass()
 {
   gROOT->Reset();
 
   // Input FDroot file
-  TString FileIn = "/dune/app/users/flynnguo/NDEff/DUNE_ND_GeoEff/bin/Output_FDGeoEff_2293930_985.root";
+  TString FileIn = "/dune/app/users/flynnguo/NDEff/DUNE_ND_GeoEff/bin/Output_FDGeoEff_2293930_80.root";
 
 
   TChain *t_Throws = new TChain("ThrowsFD");
@@ -339,9 +350,9 @@ void ThrowPass()
   {
     t_effTree->GetEntry(i_entry);
     t_effValues->GetEntry(i_entry);
-    if (iwritten!=4) continue;
+    if (iwritten!=0) continue;
     if (ND_LAr_dtctr_pos!=0) continue;
-    if (ND_LAr_vtx_pos!=-264 && ND_LAr_vtx_pos!=-216) continue; // only pick vtx at 168cm and 216cm
+    if (ND_LAr_vtx_pos!=-216 && ND_LAr_vtx_pos!=-264) continue; // only pick vtx at 168cm and 216cm
     cout << "i_entry: " << i_entry << ", iwritten: " << iwritten << ", ND_LAr_dtctr_pos: " << ND_LAr_dtctr_pos << ", ND_LAr_vtx_pos: " << ND_LAr_vtx_pos << ", ND_GeoEff: " << ND_GeoEff << endl;
     //
 
@@ -373,12 +384,12 @@ void ThrowPass()
               if (throw_result == 0 && ND_LAr_vtx_pos == -216)
               {
                 ithrow1.emplace_back((counter-1)*64 + ithrow);
-                cout << "-285cm, ithrow: " << (counter-1)*64 + ithrow << endl;
+                cout << "-24cm, ithrow: " << (counter-1)*64 + ithrow << endl;
               }
               if (throw_result != 0 && ND_LAr_vtx_pos == -264)
               {
                 ithrow2.emplace_back((counter-1)*64 + ithrow);
-                cout << "-292cm, ithrow: " << (counter-1)*64 + ithrow << endl;
+                cout << "-72cm, ithrow: " << (counter-1)*64 + ithrow << endl;
               }
             } // end if FD event passed ND FV cut
           }   // end loop over 64 throws in a chunk
@@ -411,6 +422,30 @@ void ThrowPass()
   cout << '\n';
   cout << "common_vsize: " << common_v.size() << '\n';
   cout << "size: " << counter_size << '\n';
+
+
+}
+
+//Find out the fraction of dip
+void Fraction()
+{
+  gROOT->Reset();
+
+  // Input FDroot file
+  TString FileIn = "/dune/app/users/flynnguo/NDEff/DUNE_ND_GeoEff/bin/Output_FDGeoEff_2293930_988.root";
+
+
+  TChain *t_effValues = new TChain("effValues");
+  t_effValues->Add(FileIn.Data());
+  Int_t iwritten;
+  Double_t ND_LAr_dtctr_pos;
+  Double_t ND_LAr_vtx_pos;
+  Double_t ND_GeoEff;
+  t_effValues->SetBranchAddress("iwritten",         &iwritten);
+  t_effValues->SetBranchAddress("ND_LAr_dtctr_pos",   &ND_LAr_dtctr_pos);
+  t_effValues->SetBranchAddress("ND_LAr_vtx_pos",   &ND_LAr_vtx_pos);
+  t_effValues->SetBranchAddress("ND_GeoEff",        &ND_GeoEff);
+
 
 
 }
