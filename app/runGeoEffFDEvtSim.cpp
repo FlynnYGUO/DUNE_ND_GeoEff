@@ -149,7 +149,7 @@ int main(int argc, char** argv)
   // Declare variables used in this program
   //
   int nentries = 0; // Total input events
-  float vetoEnergyFD; // Total hadron deposited energy in FD veto region
+  double vetoEnergyFD; // Total hadron deposited energy in FD veto region
   int iwritten = 0; // Output event counter
   float decayZbeamCoord; // Decay point (neutrino production point) in beam coordinate [cm]
   float decayXdetCoord; // Decay point (neutrino production point) in detector coordinate on the x-axis [cm]
@@ -444,6 +444,7 @@ int main(int argc, char** argv)
   TTree *effTreeFD = new TTree("effTreeND", "FD eff Tree");
   effTreeFD->Branch("ND_Gen_numu_E",                             &ND_Gen_numu_E,            "ND_Gen_numu_E/D");
   effTreeFD->Branch("ND_E_vis_true",                             &ND_E_vis_true,            "ND_E_vis_true/D");
+  effTreeFD->Branch("vetoEnergyFD",                              &vetoEnergyFD,             "vetoEnergyFD/D");
   effTreeFD->Branch("ND_LepNuAngle",                             &ND_LepNuAngle,            "ND_LepNuAngle/D");
   effTreeFD->Branch("ND_Sim_n_hadronic_Edep_b",                  &FD_Sim_n_hadronic_Edep_b,            "FD_Sim_n_hadronic_Edep_b/I");
   // 1. FD to ND: after earth curvature rotation
@@ -660,7 +661,7 @@ int main(int argc, char** argv)
     // Skip FD event if the total hadron E in veto region exceeds vetoEnergy [MeV]
     //
     if (throwfileVerbose) myfile << "vetoEnergyFD[MeV]: " << vetoEnergyFD <<"\n\n";
-    if ( vetoEnergyFD > 30 ) continue; // 30 MeV
+    // if ( vetoEnergyFD > 30 ) continue; // 30 MeV
     FD_vetocut_counter++;
     //
     // Renew throws every 100th (iwritten % 100 == 0)written event to save file size, i.e., if N = 128,
