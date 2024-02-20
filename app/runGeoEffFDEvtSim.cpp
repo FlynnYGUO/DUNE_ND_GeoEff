@@ -89,7 +89,7 @@ int main(int argc, char** argv)
   int FD_Sim_nMu; // # of Sim muons (mu+/mu-)
   int FD_CCNC_truth; // 0 =CC 1 =NC
   int FD_neuPDG; // Generator level neutrino PDG
-  int FD_LepPDG; // Lepton PDG
+  int FD_LepPDG; // PDG code of the final-state lepton
   double FD_Sim_mu_start_vx; // Position of the muon trajectory at start point on the x-axis [cm]
   double FD_Sim_mu_start_vy; // Position of the muon trajectory at start point on the y-axis [cm]
   double FD_Sim_mu_start_vz; // Position of the muon trajectory at start point on the z-axis [cm]
@@ -632,7 +632,7 @@ int main(int argc, char** argv)
     if (throwfileVerbose) myfile << "FD_Sim_n_hadronic_Edep_b: " << FD_Sim_n_hadronic_Edep_b <<"\n";
     if ( FD_CCNC_truth == 1) continue;   // only use CC events
     // if ( abs(FD_neuPDG) != 14 ) continue;       // only use muon neu
-    if ( FD_LepPDG != 13 ) continue;       // only use muon 
+    if ( FD_LepPDG != 13 ) continue;       // only use muon
     // Only pick the events' vertex inside the FD FV
     if(FD_Sim_mu_start_vx > FD_FV_max[0] || FD_Sim_mu_start_vx < FD_FV_min[0] || FD_Sim_mu_start_vy > FD_FV_max[1] || FD_Sim_mu_start_vy < FD_FV_min[1] || FD_Sim_mu_start_vz > FD_FV_max[2] || FD_Sim_mu_start_vz < FD_FV_min[2]) continue;
     FD_FV_counter++;
