@@ -664,7 +664,7 @@ int main(int argc, char** argv)
     // Skip FD event if the total hadron E in veto region exceeds vetoEnergy [MeV]
     //
     if (throwfileVerbose) myfile << "vetoEnergyFD[MeV]: " << vetoEnergyFD <<"\n\n";
-    // if ( vetoEnergyFD > 30 ) continue; // 30 MeV
+    if ( vetoEnergyFD > 30 ) continue; // 30 MeV
     FD_vetocut_counter++;
     //
     // Renew throws every 100th (iwritten % 100 == 0)written event to save file size, i.e., if N = 128,
