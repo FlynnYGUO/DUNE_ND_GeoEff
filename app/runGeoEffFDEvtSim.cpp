@@ -412,6 +412,7 @@ int main(int argc, char** argv)
 
 
   // Hadron info
+  vector<vector<float>> vetoEnergyFDatND; // Veto E of FD events at ND <ND_LAr_pos < vtx_pos <vetoEnergyFDatND> > >
   vector<vector<float>> ND_OffAxis_Sim_hadronic_hit; // Position of each energy deposit [cm]: <ihadronhit < hadronic hits xyz>>
   vector<float> ND_OffAxis_Sim_hadronic_hit_xyz; //order is differert from previous
   vector<vector<vector<float>>> ND_OffAxis_Sim_hadronic_hit_xyz_vtx; // < vtx_pos <ihadronhit < hadronic hits xyz>>>
@@ -484,6 +485,7 @@ int main(int argc, char** argv)
   effTreeFD->Branch("ND_OffAxis_Sim_mu_start_p_xyz_LAr",       &ND_OffAxis_Sim_mu_start_p_xyz_LAr);
   effTreeFD->Branch("ND_OffAxis_Sim_mu_start_E_xyz_LAr",       &ND_OffAxis_Sim_mu_start_E_xyz_LAr);
   if (ntupleVerbose) effTreeFD->Branch("ND_OffAxis_Sim_hadronic_hit_xyz_LAr",         &ND_OffAxis_Sim_hadronic_hit_xyz_LAr);
+  effTreeFD->Branch("vetoEnergyFDatND",         &vetoEnergyFDatND);
 
   // 5. ND: generate random throws
   // effTreeFD->Branch("hadron_throw_result",                     &hadron_throw_result);
@@ -664,7 +666,7 @@ int main(int argc, char** argv)
     // Skip FD event if the total hadron E in veto region exceeds vetoEnergy [MeV]
     //
     if (throwfileVerbose) myfile << "vetoEnergyFD[MeV]: " << vetoEnergyFD <<"\n\n";
-    if ( vetoEnergyFD > 30 ) continue; // 30 MeV
+    // if ( vetoEnergyFD > 30 ) continue; // 30 MeV
     FD_vetocut_counter++;
     //
     // Renew throws every 100th (iwritten % 100 == 0)written event to save file size, i.e., if N = 128,
@@ -833,7 +835,7 @@ int main(int argc, char** argv)
 
 
     int ND_off_axis_pos_counter = 0;
-
+    float vetoEnergyFDatND_float;
 
     for ( double i_ND_off_axis_pos : ND_LAr_dtctr_pos_vec )
     {
@@ -1028,16 +1030,34 @@ int main(int argc, char** argv)
         ND_OffAxis_Sim_mu_start_E_xyz.clear();
 
         // ND_OffAxis_Sim_hadronic_hit
-        for ( int ihadronhit = 0; ihadronhit < FD_Sim_n_hadronic_Edep_b; ihadronhit++ ){
+        for ( int ihadronhit = 0; ihadronhit < FD_Sim_n_hadronic_Edep_b; ihadronhit++ )
+        {
           eff->setHadronHitV(ND_OffAxis_Unrotated_Sim_hadronic_hit[ihadronhit][0],ND_OffAxis_Unrotated_Sim_hadronic_hit[ihadronhit][1],ND_OffAxis_Unrotated_Sim_hadronic_hit[ihadronhit][2]);
           for (int i =0; i<3;i++)
           {
             ND_OffAxis_Sim_hadronic_hit_xyz.emplace_back(eff->getOffAxisHadronHitV(i));
           }
           ND_OffAxis_Sim_hadronic_hit.emplace_back(ND_OffAxis_Sim_hadronic_hit_xyz);
+
+          // Calculate vetoE of FD event at ND
+          // Veto region size: 30 cm from the active volume
+          vetoEnergyFDatND_float = 0.;
+          if ( ( ND_OffAxis_Sim_hadronic_hit_xyz[0] > NDActiveVol_min[0] && ND_OffAxis_Sim_hadronic_hit_xyz[0] < NDActiveVol_min[0] + 30 ) ||
+               ( ND_OffAxis_Sim_hadronic_hit_xyz[1] > NDActiveVol_min[1] && ND_OffAxis_Sim_hadronic_hit_xyz[1] < NDActiveVol_min[1] + 30 ) ||
+               ( ND_OffAxis_Sim_hadronic_hit_xyz[2] > NDActiveVol_min[2] && ND_OffAxis_Sim_hadronic_hit_xyz[2] < NDActiveVol_min[2] + 30 ) ||
+               ( ND_OffAxis_Sim_hadronic_hit_xyz[0] > NDActiveVol_max[0] - 30 && ND_OffAxis_Sim_hadronic_hit_xyz[0] < NDActiveVol_max[0] ) ||
+               ( ND_OffAxis_Sim_hadronic_hit_xyz[1] > NDActiveVol_max[1] - 30 && ND_OffAxis_Sim_hadronic_hit_xyz[1] < NDActiveVol_max[1] ) ||
+               ( ND_OffAxis_Sim_hadronic_hit_xyz[2] > NDActiveVol_max[2] - 30 && ND_OffAxis_Sim_hadronic_hit_xyz[2] < NDActiveVol_max[2] )
+             ){
+               vetoEnergyFDatND_float += FD_Sim_hadronic_hit_Edep_b2->at(ihadronhit);
+          } // end if hadron deposit in FD veto region
           ND_OffAxis_Sim_hadronic_hit_xyz.clear();
-        }
+        } // end hadron hit loop
         ND_OffAxis_Sim_hadronic_hit_xyz_vtx.emplace_back(ND_OffAxis_Sim_hadronic_hit);
+
+        if(vetoEnergyFDatND_float > 30) cout << "i_ND_off_axis_pos: " << i_ND_off_axis_pos << ", i_vtx_vx: " << i_vtx_vx << ", vetoEnergyFDatND_float: " << vetoEnergyFDatND_float << endl;
+        vetoEnergyFDatND.emplace_back(vetoEnergyFDatND_float);
+
 
         // Add hadron hits output
         if (myfileVerbose)
@@ -1253,6 +1273,9 @@ int main(int argc, char** argv)
 
 
     }   // end Loop over ND_LAr_dtctr_pos_vec
+
+
+
 
     effTreeFD->Fill();
     ND_OffAxis_Unrotated_Sim_mu_start_v_xyz_LAr.clear();
