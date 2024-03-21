@@ -29,10 +29,10 @@ float ND_FV_min[] = {-300., -100., 50.};
 float ND_FV_max[] = { 300.,  100., 350.};
 
 // Fiducial volume for FD ( minus the same amount from FDActiveVol)
-// float FD_FV_min[] = {-240., -470., 130.};
-// float FD_FV_max[] = { 240.,  470., 1170.};
-float FD_FV_min[] = {-145., -375., 100.};
-float FD_FV_max[] = { 145.,  375., 960.};
+float FD_FV_min[] = {-240., -470., 130.};
+float FD_FV_max[] = { 240.,  470., 1170.};
+// float FD_FV_min[] = {-145., -375., 100.};
+// float FD_FV_max[] = { 145.,  375., 960.};
 
 
 
