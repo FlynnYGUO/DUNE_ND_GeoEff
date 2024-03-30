@@ -86,6 +86,7 @@ int main(int argc, char** argv)
   double FD_Gen_numu_E; // Energy of generator level neutrino [MeV]
   double FD_E_vis_true; // True visible energy [MeV],  E_vis, true = LepE + eP + ePip + ePim + ePi0 + eOther + nipi0 * pi0_mass,  where pi0_mass is a constant that's 135 MeV
   double FD_LepNuAngle;                // Angle b/w nu and lepton [radians]
+  double FD_W;     //Invariant mass of hadronic system [GeV]
   int FD_Sim_nMu; // # of Sim muons (mu+/mu-)
   int FD_CCNC_truth; // 0 =CC 1 =NC
   int FD_neuPDG; // Generator level neutrino PDG
@@ -118,6 +119,7 @@ int main(int argc, char** argv)
   t->SetBranchAddress("Sim_nNumu",                &FD_Sim_nNumu);
   t->SetBranchAddress("Gen_numu_E",               &FD_Gen_numu_E);
   t->SetBranchAddress("LepNuAngle",               &FD_LepNuAngle);
+  t->SetBranchAddress("W",                        &FD_W);
   t->SetBranchAddress("E_vis_true",               &FD_E_vis_true);
   t->SetBranchAddress("Sim_nMu",                  &FD_Sim_nMu);
   t->SetBranchAddress("CCNC_truth",               &FD_CCNC_truth);
@@ -319,6 +321,7 @@ int main(int argc, char** argv)
   double ND_Gen_numu_E; // Energy of generator level neutrino [GeV]
   double ND_E_vis_true; // True visible energy of neutrino [GeV]
   double ND_LepNuAngle; // Angle b/w nu and lepton [radians]
+  double ND_W;          // Invariant mass of hadronic system [GeV]
   // Muon info
   // array: (x,y,z)<->dim=(0,1,2)
   double ND_RandomVtx_Sim_mu_start_v[3]; // Position of the muon trajectory at start point [cm]
@@ -449,6 +452,7 @@ int main(int argc, char** argv)
   effTreeFD->Branch("ND_E_vis_true",                             &ND_E_vis_true,            "ND_E_vis_true/D");
   effTreeFD->Branch("vetoEnergyFD",                              &vetoEnergyFD,             "vetoEnergyFD/D");
   effTreeFD->Branch("ND_LepNuAngle",                             &ND_LepNuAngle,            "ND_LepNuAngle/D");
+  effTreeFD->Branch("ND_W",                                      &ND_W,                     "ND_W/D");
   effTreeFD->Branch("ND_Sim_n_hadronic_Edep_b",                  &FD_Sim_n_hadronic_Edep_b,            "FD_Sim_n_hadronic_Edep_b/I");
   // 1. FD to ND: after earth curvature rotation
   effTreeFD->Branch("ND_RandomVtx_Sim_mu_start_v",               ND_RandomVtx_Sim_mu_start_v,       "ND_RandomVtx_Sim_mu_start_v[3]/D");   // entries = written evts*3
@@ -760,6 +764,7 @@ int main(int argc, char** argv)
     ND_Gen_numu_E = FD_Gen_numu_E;
     ND_E_vis_true = FD_E_vis_true;
     ND_LepNuAngle = FD_LepNuAngle;
+    ND_W = FD_W;
     ND_Sim_hadronic_Edep_b2 = FD_Sim_hadronic_Edep_b2;
 
 
