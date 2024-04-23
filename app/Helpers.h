@@ -31,10 +31,11 @@ float ND_FV_max[] = { 300.,  100., 350.};
 // Fiducial volume for FD ( minus the same amount from FDActiveVol)
 // float FD_FV_min[] = {-240., -470., 130.};
 // float FD_FV_max[] = { 240.,  470., 1170.};
-// float FD_FV_min[] = {-145., -375., 100.};
-// float FD_FV_max[] = { 145.,  375., 960.};
-float FD_FV_min[] = {-320., -550., 50.};
-float FD_FV_max[] = { 320.,  550., 1250.};
+// FV: 99% pass Eveto cut
+float FD_FV_min[] = {-145., -375., 100.};
+float FD_FV_max[] = { 145.,  375., 960.};
+// float FD_FV_min[] = {-320., -550., 50.};
+// float FD_FV_max[] = { 320.,  550., 1250.};
 
 
 bool random_ND_off_axis_pos     = false; // Set to true will only use a random ND off axis position per event in runGeoEffFDEvtSim
