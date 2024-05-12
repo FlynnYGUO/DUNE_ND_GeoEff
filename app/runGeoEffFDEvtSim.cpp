@@ -574,11 +574,11 @@ int main(int argc, char** argv)
   // Range for translation throws. Use full ND FV volume but fix X.
   eff->setRangeX(-1, -1);
   eff->setRandomizeX(false);
-  // eff->setRangeY(ND_FV_min[1], ND_FV_max[1]);
-  // eff->setRangeZ(ND_FV_min[2], ND_FV_max[2]);
+  eff->setRangeY(ND_FV_min[1], ND_FV_max[1]);
+  eff->setRangeZ(ND_FV_min[2], ND_FV_max[2]);
   // to be consistent w/ ND CAF
-  eff->setRangeY(NDActiveVol_min[1], NDActiveVol_max[1]);
-  eff->setRangeZ(NDActiveVol_min[2], NDActiveVol_max[2]);
+  // eff->setRangeY(NDActiveVol_min[1], NDActiveVol_max[1]);
+  // eff->setRangeZ(NDActiveVol_min[2], NDActiveVol_max[2]);
 
   // Set offset between MC coordinate system and det volumes
   eff->setOffsetX(NDLAr_OnAxis_offset[0]);
