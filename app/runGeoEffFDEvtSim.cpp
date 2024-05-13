@@ -40,6 +40,27 @@ using namespace std;
 // Include customized functions and constants
 #include "Helpers.h"
 
+// Pick six evenly spaced points in each non-dead region
+vector<double> generatePoints(double start)
+{
+  vector<double> points;
+  double step = 7.0; // Interval between points
+  double current;
+
+  if (start == -300) {
+      current = start + 1.45; // Adjusted start for the edge case
+  } else if (start == 256.55) {
+      current = start + 7.0; // Start for the symmetric edge case
+  } else {
+      current = start + step; // Regular start
+  }
+
+  for (int i = 0; i < 6; ++i) {
+      points.push_back(current + i * step);
+  }
+  return points;
+}
+
 // The program which do all translations and rotations when moving event from FD to ND:
 // 0. FD: read event from FD MC ntuple: before earth curvature rotation
 // 1. FD to ND: after earth curvature rotation
@@ -172,7 +193,7 @@ int main(int argc, char** argv)
   vector<double> ND_OffAxis_pos_vec;        // unit: cm, Off-Axis pos = ND_LAr_dtctr_pos_vec + ND_vtx_vx_vec;
 
   // int ND_off_axis_pos_steps = 0;
-  int vtx_vx_steps = 0;
+  // int vtx_vx_steps = 0;
 
   // Initialize first element as -999, to be replaced by a random off-axis nd pos in each evt below
   ND_LAr_dtctr_pos_vec.clear();
@@ -236,29 +257,48 @@ int main(int argc, char** argv)
   // Initialize first element as -999, to be replaced by a random vtx x in each evt below
   ND_vtx_vx_vec.clear();
 
-  if ( ND_local_x_stepsize > 0 && ND_local_x_stepsize <= ND_local_x_max ) {
-    vtx_vx_steps = ( ND_local_x_max - ND_local_x_min ) / ND_local_x_stepsize;
-  }
-  else std::cout << "Error: please set the ND_local_x_stepsize above 0 and below ND_local_x_max." << std::endl;
+  // if ( ND_local_x_stepsize > 0 && ND_local_x_stepsize <= ND_local_x_max ) {
+  //   vtx_vx_steps = ( ND_local_x_max - ND_local_x_min ) / ND_local_x_stepsize;
+  // }
+  // else std::cout << "Error: please set the ND_local_x_stepsize above 0 and below ND_local_x_max." << std::endl;
+  //
+  // if (verbose) std::cout << "vtx_vx_steps: " << vtx_vx_steps << std::endl;
+  //
+  // for (int i =0; i<5; i++)
+  // {
+  //   ND_vtx_vx_vec.emplace_back(-299+7*i);
+  // }
+  // // The rest elements follow fixed increments from min ND local x
+  // for ( int i_vtx_vx_step = 0; i_vtx_vx_step < vtx_vx_steps + 1; i_vtx_vx_step++ ){
+  //   if((i_vtx_vx_step*ND_local_x_stepsize + ND_local_x_min)<300 && (i_vtx_vx_step*ND_local_x_stepsize + ND_local_x_min)>-300)
+  //   {
+  //     ND_vtx_vx_vec.emplace_back( i_vtx_vx_step*ND_local_x_stepsize + ND_local_x_min );
+  //   }
+  // }
+  // for (int i =0; i<5; i++)
+  // {
+  //   ND_vtx_vx_vec.emplace_back(271+7*i);
+  // }
 
-  if (verbose) std::cout << "vtx_vx_steps: " << vtx_vx_steps << std::endl;
+  // Generate six evenly spaced point in each non-dead region
+  vector<pair<double, double>> non_dead_regions = {
+      {-300, -256.55}, {-253.95, -204.95}, {-203.45, -154.45}, {-151.85, -102.85},
+      {-101.35, -52.35}, {-49.75, -0.75}, {0.75, 49.75}, {52.35, 101.35},
+      {102.85, 151.85}, {154.45, 203.45}, {204.95, 253.95}, {256.55, 300}
+  };
 
-  for (int i =0; i<5; i++)
-  {
-    ND_vtx_vx_vec.emplace_back(-299+7*i);
-  }
-  // The rest elements follow fixed increments from min ND local x
-  for ( int i_vtx_vx_step = 0; i_vtx_vx_step < vtx_vx_steps + 1; i_vtx_vx_step++ ){
-    if((i_vtx_vx_step*ND_local_x_stepsize + ND_local_x_min)<300 && (i_vtx_vx_step*ND_local_x_stepsize + ND_local_x_min)>-300)
-    {
-      ND_vtx_vx_vec.emplace_back( i_vtx_vx_step*ND_local_x_stepsize + ND_local_x_min );
-    }
-  }
-  for (int i =0; i<5; i++)
-  {
-    ND_vtx_vx_vec.emplace_back(271+7*i);
+  // Iterate over each non-dead region and generate points
+  for (const auto& region : non_dead_regions) {
+      auto points = generatePoints(region.first);
+      // std::cout << "Points between " << region.first << " and " << region.second << ": ";
+      for (auto point : points) {
+          std::cout << point << " ";
+          ND_vtx_vx_vec.emplace_back(point);
+      }
+      std::cout << std::endl;
   }
 
+  // Define the non-dead regions
   if (true)
   {for (auto x : ND_vtx_vx_vec)
         std::cout << x << ",  ";}
