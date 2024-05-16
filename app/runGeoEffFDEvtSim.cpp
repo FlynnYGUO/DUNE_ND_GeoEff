@@ -1215,7 +1215,8 @@ int main(int argc, char** argv)
         eff->setOffAxisOffsetZ(NDLAr_OnAxis_offset[2]);
         // Get hadron containment result after everything is set to ND coordinate sys
         // Do random throws regardless whether FD evt is contained in ND volume by setting a false flag
-        hadron_throw_result = eff->getHadronContainmentThrows_FD_GEC(false); // Every 64 throw results stored into a 64 bit unsigned int: 0101101...
+        // hadron_throw_result = eff->getHadronContainmentThrows_FD_GEC(false); // Every 64 throw results stored into a 64 bit unsigned int: 0101101...
+        hadron_throw_result = eff->getHadronContainmentThrows_FD_GEC_outsideVeto(false); // Every 64 throw results stored into a 64 bit unsigned int: 0101101...
 
 
         if (throwfileVerbose) myfile << "i_ND_off_axis_pos: " << i_ND_off_axis_pos << " cm, vtx x #" << vtx_vx_counter << ": " << i_vtx_vx << " cm, throw result[0][0][0]: " << hadron_throw_result[0][0][0] << "\n";

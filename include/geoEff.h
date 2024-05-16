@@ -68,6 +68,7 @@ class geoEff
 
   bool isContained( Eigen::Matrix3Xf hitSegments, std::vector<float> energyDeposits, float vSize, float vetoEnergyThreshold );
   bool isContained_FD_GEC( Eigen::Matrix3Xf hitSegments, std::vector<float> energyDeposits, float vSize, float vetoEnergyThreshold );
+  bool isContained_FD_GEC_outsideVeto( Eigen::Matrix3Xf hitSegments, std::vector<float> energyDeposits, float vSize, float vetoEnergyThreshold );
   float getVetoE( Eigen::Matrix3Xf hitSegments, std::vector<float> energyDeposits, float vSize);
   float getTotE( std::vector<float> energyDeposits );
 
@@ -152,10 +153,12 @@ class geoEff
   // Pass/fail for each set of vetoSize and vetoEnergy. Storing in TTree as uint64_t seems to take ~half the space of the equivalent vector< bool >.
   std::vector< std::vector< std::vector< uint64_t > > > getHadronContainmentThrows(bool ignore_uncontained);
   std::vector< std::vector< std::vector< uint64_t > > > getHadronContainmentThrows_FD_GEC(bool ignore_uncontained);
+  std::vector< std::vector< std::vector< uint64_t > > > getHadronContainmentThrows_FD_GEC_outsideVeto(bool ignore_uncontained);
 
   // Get pass/fail containment criterion for original event
   std::vector< std::vector< bool > > getHadronContainmentOrigin();
   std::vector< std::vector< bool > > getHadronContainmentOrigin_FD_GEC();
+  std::vector< std::vector< bool > > getHadronContainmentOrigin_FD_GEC_outsideVeto();
 
   void setSeed(int seed);
 
