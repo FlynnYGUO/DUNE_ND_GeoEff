@@ -55,7 +55,7 @@ vector<double> generatePoints(double start)
       current = start + step; // Regular start
   }
 
-  for (int i = 0; i < 2; ++i) {
+  for (int i = 0; i < 6; ++i) {
       points.push_back(current + i * step);
   }
   return points;
