@@ -55,7 +55,7 @@ vector<double> generatePoints(double start)
       current = start + step; // Regular start
   }
 
-  for (int i = 0; i < 6; ++i) {
+  for (int i = 0; i < 2; ++i) {
       points.push_back(current + i * step);
   }
   return points;
@@ -549,11 +549,18 @@ int main(int argc, char** argv)
   double ND_GeoEff;
   double ND_OffAxis_MeanEff = 0.;
 
+  float vetoEnergyFDatND_float;
+  float outEnergyFDatND_float;
+  float totEnergyFDatND_float;
+
   TTree *effValues = new TTree("effValues", "ND eff Tree");
   effValues->Branch("iwritten",                     &iwritten,             "iwritten/I");
-  effValues->Branch("ND_LAr_dtctr_pos",               &ND_LAr_dtctr_pos,       "ND_LAr_dtctr_pos/D");
-  effValues->Branch("ND_LAr_vtx_pos",                   &ND_LAr_vtx_pos,           "ND_LAr_vtx_pos/D");
+  effValues->Branch("ND_LAr_dtctr_pos",             &ND_LAr_dtctr_pos,     "ND_LAr_dtctr_pos/D");
+  effValues->Branch("ND_LAr_vtx_pos",               &ND_LAr_vtx_pos,       "ND_LAr_vtx_pos/D");
   effValues->Branch("ND_GeoEff",                    &ND_GeoEff,            "ND_GeoEff/D");
+  effValues->Branch("vetoEnergyFDatND_f",           &vetoEnergyFDatND_float,           "vetoEnergyFDatND_float/F");
+  effValues->Branch("outEnergyFDatND_f",            &outEnergyFDatND_float,            "outEnergyFDatND_float/F");
+  effValues->Branch("totEnergyFDatND_f",            &totEnergyFDatND_float,            "totEnergyFDatND_float/F");
   effValues->Branch("ND_OffAxis_MeanEff",           &ND_OffAxis_MeanEff,   "ND_OffAxis_MeanEff/D");
 
 
@@ -890,9 +897,7 @@ int main(int argc, char** argv)
 
 
     int ND_off_axis_pos_counter = 0;
-    float vetoEnergyFDatND_float;
-    float outEnergyFDatND_float;
-    float totEnergyFDatND_float;
+
 
     for ( double i_ND_off_axis_pos : ND_LAr_dtctr_pos_vec )
     {
@@ -1215,8 +1220,8 @@ int main(int argc, char** argv)
         eff->setOffAxisOffsetZ(NDLAr_OnAxis_offset[2]);
         // Get hadron containment result after everything is set to ND coordinate sys
         // Do random throws regardless whether FD evt is contained in ND volume by setting a false flag
-        // hadron_throw_result = eff->getHadronContainmentThrows_FD_GEC(false); // Every 64 throw results stored into a 64 bit unsigned int: 0101101...
-        hadron_throw_result = eff->getHadronContainmentThrows_FD_GEC_outsideVeto(false); // Every 64 throw results stored into a 64 bit unsigned int: 0101101...
+        hadron_throw_result = eff->getHadronContainmentThrows_FD_GEC(false); // Every 64 throw results stored into a 64 bit unsigned int: 0101101...
+        // hadron_throw_result = eff->getHadronContainmentThrows_FD_GEC_outsideVeto(false); // Every 64 throw results stored into a 64 bit unsigned int: 0101101...
 
 
         if (throwfileVerbose) myfile << "i_ND_off_axis_pos: " << i_ND_off_axis_pos << " cm, vtx x #" << vtx_vx_counter << ": " << i_vtx_vx << " cm, throw result[0][0][0]: " << hadron_throw_result[0][0][0] << "\n";
@@ -1352,7 +1357,9 @@ int main(int argc, char** argv)
 
       vetoEnergyFDatND.emplace_back(vetoEnergyFDatND_vtx);
       vetoEnergyFDatND_vtx.clear();
+      totEnergyFDatND.emplace_back(totEnergyFDatND_vtx);
       totEnergyFDatND_vtx.clear();
+      outEnergyFDatND.emplace_back(outEnergyFDatND_vtx);
       outEnergyFDatND_vtx.clear();
 
 
