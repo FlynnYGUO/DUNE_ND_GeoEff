@@ -1130,6 +1130,8 @@ int main(int argc, char** argv)
           )
           {
             outEnergyFDatND_float += FD_Sim_hadronic_hit_Edep_b2->at(ihadronhit);
+            // Cut all out energy
+            FD_Sim_hadronic_hit_Edep_b2->at(ihadronhit) = 0;
           } // end if hadron deposit outside FD active region
           ND_OffAxis_Sim_hadronic_hit_xyz.clear();
         } // end hadron hit loop
