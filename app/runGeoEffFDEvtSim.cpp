@@ -197,6 +197,7 @@ int main(int argc, char** argv)
 
   // Initialize first element as -999, to be replaced by a random off-axis nd pos in each evt below
   ND_LAr_dtctr_pos_vec.clear();
+  ND_LAr_dtctr_pos_vec.emplace_back(0);
 
   // Old algorithm chooseing ND off axis pos
   // if ( ND_Lar_dtctr_pos_new_stepsize > 0 && ND_Lar_dtctr_pos_new_stepsize <= OffAxisPoints[13] ) {
@@ -213,43 +214,43 @@ int main(int argc, char** argv)
   //
   // if (verbose) std::cout << "ND_LAr_dtctr_pos_vec size: "<< ND_LAr_dtctr_pos_vec.size() << std::endl;
 
-  //------------------------------------------------------------------------------
-  // New algorithm chooseing ND off axis pos
-  int LArPos_new1_step = 0;
-  int LArPos_new2_step = 0;
-
-  // Calculate steps
-  if ( ND_Lar_dtctr_pos_new_stepsize > 0 && ND_Lar_dtctr_pos_new_stepsize <= abs(NDLarPos_new1[1]) ) {
-    LArPos_new1_step = - ( NDLarPos_new1[1] - NDLarPos_new1[0] ) / ND_Lar_dtctr_pos_new_stepsize;
-  }
-  else std::cout << "Error: please set the ND_Lar_dtctr_pos_new_stepsize above 0 and below max element of OffAxisPoints." << std::endl;
-  if ( ND_Lar_dtctr_pos_new_stepsize > 0 && ND_Lar_dtctr_pos_new_stepsize <= abs(NDLarPos_new2[1]) ) {
-    LArPos_new2_step = - ( NDLarPos_new2[1] - NDLarPos_new2[0] ) / ND_Lar_dtctr_pos_new_stepsize;
-  }
-  else std::cout << "Error: please set the ND_Lar_dtctr_pos_new_stepsize above 0 and below max element of OffAxisPoints." << std::endl;
-
-  if (verbose) cout << "LArPos_new1_step: " << LArPos_new1_step <<endl;
-  if (verbose) cout << "LArPos_new2_step: " << LArPos_new2_step <<endl;
-
-  for ( int i_ND_off_axis_pos_step = 0; i_ND_off_axis_pos_step < LArPos_new1_step + 1; i_ND_off_axis_pos_step++ )
-  {
-    ND_LAr_dtctr_pos_vec.emplace_back( (i_ND_off_axis_pos_step*ND_Lar_dtctr_pos_new_stepsize + NDLarPos_new1[1])*100. );
-  }
-
-  // use below only when we need more ND_LAr positions w/ different distance
-  // for ( int i_ND_off_axis_pos_step = 0; i_ND_off_axis_pos_step < LArPos_new2_step + 1; i_ND_off_axis_pos_step++ )
-  // {
-  //   ND_LAr_dtctr_pos_vec.emplace_back( (i_ND_off_axis_pos_step*ND_Lar_dtctr_pos_new_stepsize + NDLarPos_new2[1])*100. );
+  // //------------------------------------------------------------------------------
+  // // New algorithm chooseing ND off axis pos
+  // int LArPos_new1_step = 0;
+  // int LArPos_new2_step = 0;
+  //
+  // // Calculate steps
+  // if ( ND_Lar_dtctr_pos_new_stepsize > 0 && ND_Lar_dtctr_pos_new_stepsize <= abs(NDLarPos_new1[1]) ) {
+  //   LArPos_new1_step = - ( NDLarPos_new1[1] - NDLarPos_new1[0] ) / ND_Lar_dtctr_pos_new_stepsize;
   // }
-
-  // Sort the vector
-  sort(ND_LAr_dtctr_pos_vec.begin(), ND_LAr_dtctr_pos_vec.end());
-  if (true)
-  {for (auto x : ND_LAr_dtctr_pos_vec)
-        std::cout << x << ",  ";}
-  if (true) std::cout << "ND_LAr_dtctr_pos_vec size: "<< ND_LAr_dtctr_pos_vec.size() << std::endl;
-
-
+  // else std::cout << "Error: please set the ND_Lar_dtctr_pos_new_stepsize above 0 and below max element of OffAxisPoints." << std::endl;
+  // if ( ND_Lar_dtctr_pos_new_stepsize > 0 && ND_Lar_dtctr_pos_new_stepsize <= abs(NDLarPos_new2[1]) ) {
+  //   LArPos_new2_step = - ( NDLarPos_new2[1] - NDLarPos_new2[0] ) / ND_Lar_dtctr_pos_new_stepsize;
+  // }
+  // else std::cout << "Error: please set the ND_Lar_dtctr_pos_new_stepsize above 0 and below max element of OffAxisPoints." << std::endl;
+  //
+  // if (verbose) cout << "LArPos_new1_step: " << LArPos_new1_step <<endl;
+  // if (verbose) cout << "LArPos_new2_step: " << LArPos_new2_step <<endl;
+  //
+  // for ( int i_ND_off_axis_pos_step = 0; i_ND_off_axis_pos_step < LArPos_new1_step + 1; i_ND_off_axis_pos_step++ )
+  // {
+  //   ND_LAr_dtctr_pos_vec.emplace_back( (i_ND_off_axis_pos_step*ND_Lar_dtctr_pos_new_stepsize + NDLarPos_new1[1])*100. );
+  // }
+  //
+  // // use below only when we need more ND_LAr positions w/ different distance
+  // // for ( int i_ND_off_axis_pos_step = 0; i_ND_off_axis_pos_step < LArPos_new2_step + 1; i_ND_off_axis_pos_step++ )
+  // // {
+  // //   ND_LAr_dtctr_pos_vec.emplace_back( (i_ND_off_axis_pos_step*ND_Lar_dtctr_pos_new_stepsize + NDLarPos_new2[1])*100. );
+  // // }
+  //
+  // // Sort the vector
+  // sort(ND_LAr_dtctr_pos_vec.begin(), ND_LAr_dtctr_pos_vec.end());
+  // if (true)
+  // {for (auto x : ND_LAr_dtctr_pos_vec)
+  //       std::cout << x << ",  ";}
+  // if (true) std::cout << "ND_LAr_dtctr_pos_vec size: "<< ND_LAr_dtctr_pos_vec.size() << std::endl;
+  //
+  //
 
   //------------------------------------------------------------------------------
   //------------------------------------------------------------------------------
@@ -671,8 +672,8 @@ int main(int argc, char** argv)
   if (myfileVerbose) myfile << "Tot evts: " << nentries << "\n";
   if (throwfileVerbose) myfile << "Tot evts: " << nentries << "\n";
   if (hadronhitVerbose) myfile << "Tot evts: " << nentries << "\n";
-  for ( int ientry = 0; ientry < nentries; ientry++ )
-  // for ( int ientry = 116; ientry < 117; ientry++ ) // Use for drwaing one hardronic hits plots
+  // for ( int ientry = 0; ientry < nentries; ientry++ )
+  for ( int ientry = 0; ientry < 33; ientry++ ) // Use for drwaing one hardronic hits plots
   {
 
     t->GetEntry(ientry);
