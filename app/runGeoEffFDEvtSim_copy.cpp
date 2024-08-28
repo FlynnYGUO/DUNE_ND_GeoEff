@@ -597,14 +597,13 @@ int main(int argc, char** argv)
   //
   // Clockwise rotate beamline around ND local x axis
   double beamLineRotation = -0.101;           // unit: rad
-  vector<double> BeamCenterAtND={0.0*100., 0.05387*100., 6.6*100.}; // beam center(0.0, 0.05387, 6.66) [cm]
 
   // Put back into beam center(0.0, 0.05387, 6.66) tanslation 1 [cm]
   ND_OnAxis_Sim_mu_start_v[0] = 0.0*100.;
   ND_OnAxis_Sim_mu_start_v[1] = 0.05387*100.;
   ND_OnAxis_Sim_mu_start_v[2] = 6.6*100.;
   // Coordinate transformation, units: meters
-  double beamRefDetCoord[3] = {BeamCenterAtND[0]/100., BeamCenterAtND[1]/100., BeamCenterAtND[2]/100.}; // (0, 0, 0) is ND detector origin
+  double beamRefDetCoord[3] = {ND_OnAxis_Sim_mu_start_v[0]/100., ND_OnAxis_Sim_mu_start_v[1]/100., ND_OnAxis_Sim_mu_start_v[2]/100.}; // (0, 0, 0) is ND detector origin
   double detRefBeamCoord[3] = {0., 0., 574.}; // (0, 0, 0) is beam origin
 
   // Calculate neutrino production x in detector coordinate, y/z later as they depend on ND off-axis position
@@ -1132,7 +1131,7 @@ int main(int argc, char** argv)
           )
           {
             outEnergyFDatND_float += FD_Sim_hadronic_hit_Edep_b2->at(ihadronhit);
-            // Trim all out energy
+            // Cut all out energy
             FD_Sim_hadronic_hit_Edep_b2->at(ihadronhit) = 0;
           } // end if hadron deposit outside FD active region
           ND_OffAxis_Sim_hadronic_hit_xyz.clear();
@@ -1225,7 +1224,7 @@ int main(int argc, char** argv)
         // Get hadron containment result after everything is set to ND coordinate sys
         // Do random throws regardless whether FD evt is contained in ND volume by setting a false flag
         hadron_throw_result = eff->getHadronContainmentThrows_FD_GEC(false); // Every 64 throw results stored into a 64 bit unsigned int: 0101101...
-
+        
 
         if (throwfileVerbose) myfile << "i_ND_off_axis_pos: " << i_ND_off_axis_pos << " cm, vtx x #" << vtx_vx_counter << ": " << i_vtx_vx << " cm, throw result[0][0][0]: " << hadron_throw_result[0][0][0] << "\n";
         if (verbose) cout << "iwritten: " << iwritten << ", i_ND_off_axis_pos: " << i_ND_off_axis_pos << " cm, vtx x #" << vtx_vx_counter << ": " << i_vtx_vx << " cm, throw result[0][0][0]: " << hadron_throw_result[0][0][0] << "\n";

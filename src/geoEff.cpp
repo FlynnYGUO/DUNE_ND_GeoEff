@@ -398,7 +398,7 @@ std::vector< std::vector< std::vector< uint64_t > > > geoEff::getHadronContainme
     std::vector< std::vector< bool > > vecOrigContained = getHadronContainmentOrigin_FD_GEC();
     for (unsigned int i = 0; i < vetoSize.size(); i++){
       for (unsigned int j = 0; j < vetoEnergy.size(); j++){
-	if (vecOrigContained[i][j]) origContained++;
+	        if (vecOrigContained[i][j]) origContained++;
       }
     }
 
@@ -442,6 +442,8 @@ std::vector< std::vector< bool > > geoEff::getHadronContainmentOrigin(){
       if (isContained(hitSegPosOrig, hitSegEdeps, vetoSize[i], vetoEnergy[j])) hadronContainment[i][j] = true;
     }
   }
+
+
 
   return hadronContainment;
 }

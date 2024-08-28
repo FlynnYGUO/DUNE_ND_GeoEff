@@ -21,6 +21,7 @@ if ( ${ROOT_FOUND} )
 
 
   include_directories(${ROOT_INCLUDE_DIRS})
+  include_directories(${CMAKE_SOURCE_DIR}/include)
   add_executable(runGeoEffEDepSimBeamDir runGeoEffEDepSimBeamDir.cpp)
   add_executable(runGeoEffFDEvtSim runGeoEffFDEvtSim.cpp)
   add_executable(runGeoEffFDEvtSim_hadronplot runGeoEffFDEvtSim_hadronplot.cpp)
