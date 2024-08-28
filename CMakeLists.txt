@@ -15,8 +15,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 find_package(PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
-
 include_directories(${CMAKE_SOURCE_DIR}/include)
+
+
+message(STATUS "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
+message(STATUS "Include directories: ${CMAKE_SOURCE_DIR}/include")
+
 add_subdirectory(pybind11)
 add_subdirectory(src)
 add_subdirectory(app)
